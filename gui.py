@@ -162,7 +162,7 @@ eusermane = tk.CTkEntry(flogin, placeholder_text="Enter Username",width=325,corn
 epassword = tk.CTkEntry(flogin, placeholder_text="Enter password",width=325,corner_radius=30, show='*')
 bsignup = tk.CTkButton(flogin, corner_radius=30, text="Sign up", command=dlogin)
 blogin = tk.CTkButton(flogin, corner_radius=30, text="login", command=dlogin)
-llogo = tk.CTkImage(dark_image=Image.open("E:\\Grade 11\\maze gen\\im.png"),size=(300,300))
+llogo = tk.CTkImage(dark_image=Image.open("./im.png"),size=(300,300))
 llogo = tk.CTkLabel(flogin, image=llogo, text="")
 lmazepic = None
 lmazepicl: tk.CTkLabel
