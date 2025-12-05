@@ -14,19 +14,17 @@ def resize_image(event):
     if h <=0 or w <=0:
         h,w=1,1
     lmazepic.configure(size=(h,w))
-    lmazepicl = tk.CTkLabel(fmazegame, image=lmazepic, text="")
-    lmazepicl.grid(row=0, column=0, padx=10, pady=10)
+    lmazepicl.configure(image=lmazepic)
 
 def plcaceimg():
     global lmazepic,lmazepicl
     lmazepic = tk.CTkImage(dark_image=f[0].resize((1080,1080),Image.NONE),size=(h, w))
-    lmazepicl = tk.CTkLabel(fmazegame, image=lmazepic, text="")
-    lmazepicl.grid(row=0, column=0, padx=10, pady=10)
+    lmazepicl.configure(image=lmazepic)
     
 def reset():
     global emazesize
     emazesize.configure(state='normal')
-    fmazegame.grid_forget() 
+    fmazegame.grid_forget()
     win.focus_set()
 
 def left(event):
@@ -105,6 +103,7 @@ def genm():
     f=mazegenerate(n)
     global lmazepic
     img = f[0].resize((win.winfo_screenheight() - 120, win.winfo_screenheight() - 120),Image.NONE)
+    lmazepicl.grid(row=0, column=0, padx=10, pady=10)
     plcaceimg()
     emazesize.configure(state="readonly")
 
@@ -162,11 +161,14 @@ eusermane = tk.CTkEntry(flogin, placeholder_text="Enter Username",width=325,corn
 epassword = tk.CTkEntry(flogin, placeholder_text="Enter password",width=325,corner_radius=30, show='*')
 bsignup = tk.CTkButton(flogin, corner_radius=30, text="Sign up", command=dlogin)
 blogin = tk.CTkButton(flogin, corner_radius=30, text="login", command=dlogin)
-llogo = tk.CTkImage(dark_image=Image.open("./im.png"),size=(300,300))
+try:
+    llogo = tk.CTkImage(dark_image=Image.open("./im.png"),size=(300,300))
+except:
+    llogo = tk.CTkImage(dark_image=Image.new("RGB",(300,300),(0,0,0)),size=(300,300))
 llogo = tk.CTkLabel(flogin, image=llogo, text="")
-lmazepic = None
-lmazepicl: tk.CTkLabel
 fmazegame = tk.CTkFrame(master=win, corner_radius=20)
+lmazepic = None
+lmazepicl = tk.CTkLabel(fmazegame, image=lmazepic, text="")
 lmazegametxt = tk.CTkLabel(fmazegame, text="Maze Game", font=tk.CTkFont(size=30, weight="bold"))
 progressbar = tk.CTkProgressBar(fmazegame,orientation="horizontal",mode="indeterminate")
 fmazecontrols=tk.CTkFrame(master=win, corner_radius=20,width=350)
