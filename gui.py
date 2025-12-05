@@ -1,8 +1,14 @@
 from mazegenerator import mazegenerate
+from mazesolver import mazessolve
 import customtkinter as tk
 from tkinter import messagebox
 from PIL import Image, ImageTk
-def resize_image(event):
+def lockmaze():
+    global lock,emazesize
+    lock=True
+    emazesize.configure(state='normal')
+    
+def resizeimage(event):
     global h,w,lmazepicl
     w = event.width
     h = event.height
@@ -16,24 +22,33 @@ def resize_image(event):
     lmazepic.configure(size=(h,w))
     lmazepicl.configure(image=lmazepic)
 
-def plcaceimg():
+def placeimg():
     global lmazepic,lmazepicl
     lmazepic = tk.CTkImage(dark_image=f[0].resize((1080,1080),Image.NONE),size=(h, w))
     lmazepicl.configure(image=lmazepic)
+
+def solvemaze():
+    if lock:
+        return
+    f[0]=mazessolve(f[1],f[0])
+    placeimg()
+    lockmaze()
     
 def reset():
-    global emazesize
-    emazesize.configure(state='normal')
+    global lock
+    lock=False
     fmazegame.grid_forget()
     win.focus_set()
 
 def left(event):
+    if lock:
+        return
     global x,emazesize
     x = x - 1
     r, g, b = f[0].getpixel((x, y))
     if x == n * 2 - 1 and y == n * 2 - 1:
         messagebox.showinfo("Congrats!", "Congrats on completing the maze!!")
-        reset()
+        lockmaze()
         return
     if r == 0 and g == 0 and b == 0:
         x = x + 1
@@ -42,15 +57,17 @@ def left(event):
         f[0].putpixel((x, y), (255, 0, 0))
     else:
         f[0].putpixel((x + 1, y), (255, 255, 255))
-    plcaceimg()
+    placeimg()
 
 def right(event):
+    if lock:
+        return
     global x,emazesize
     x = x + 1
     r, g, b = f[0].getpixel((x, y))
     if x == n * 2 - 1 and y == n * 2 - 1:
         messagebox.showinfo("Congrats!", "Congrats on completing the maze!!")
-        reset()
+        lockmaze()
         return
     if r == 0 and g == 0 and b == 0:
         x = x - 1
@@ -59,14 +76,16 @@ def right(event):
         f[0].putpixel((x, y), (255, 0, 0))
     else:
         f[0].putpixel((x - 1, y), (255, 255, 255))
-    plcaceimg()
+    placeimg()
 
 def up(event):
+    if lock:
+        return
     global y,emazesize
     y = y - 1
     if x == n * 2 - 1 and y == n * 2 - 1:
         messagebox.showinfo("Congrats!", "Congrats on completing the maze!!")
-        reset()
+        lockmaze()
         return
     r, g, b = f[0].getpixel((x, y))
     if r == 0 and g == 0 and b == 0:
@@ -76,14 +95,16 @@ def up(event):
         f[0].putpixel((x, y), (255, 0, 0))
     else:
         f[0].putpixel((x, y + 1), (255, 255, 255))
-    plcaceimg()
+    placeimg()
 
 def down(event):
+    if lock:
+        return
     global y,emazesize
     y = y + 1
     if x == n * 2 - 1 and y == n * 2 - 1:
         messagebox.showinfo("Congrats!", "Congrats on completing the maze!!")
-        reset()
+        lockmaze()
         return
     r, g, b = f[0].getpixel((x, y))
     if r == 0 and g == 0 and b == 0:
@@ -93,9 +114,10 @@ def down(event):
         f[0].putpixel((x, y), (255, 0, 0))
     else:
         f[0].putpixel((x, y - 1), (255, 255, 255))
-    plcaceimg()
+    placeimg()
 
 def genm():
+    reset()
     pmazegame()
     global f,n,x,y,emazesize
     x,y=1,1
@@ -104,7 +126,7 @@ def genm():
     global lmazepic
     img = f[0].resize((win.winfo_screenheight() - 120, win.winfo_screenheight() - 120),Image.NONE)
     lmazepicl.grid(row=0, column=0, padx=10, pady=10)
-    plcaceimg()
+    placeimg()
     emazesize.configure(state="readonly")
 
 def dlogin():
@@ -133,8 +155,8 @@ def pmazecontrols():
     fmazecontrols.grid(row=0, column=11, padx=20, pady=20 ,columnspan=10, rowspan=10,sticky="nsew")
     lcontrolstxt.grid(row=0, column=11, padx=20, pady=10,columnspan=10,sticky="w")
     lgentxt.grid(row=1, column=11, padx=20, pady=10,columnspan=6,sticky="w")
-    emazesize.grid(row=2, column=11, padx=20, pady=10,columnspan=10,sticky="w")
-    bgenmaze.grid(row=3, column=11, padx=20, pady=10,columnspan=10,sticky="w")
+    emazesize.grid(row=2, column=11, padx=20, pady=10,columnspan=10,sticky="ew")
+    bgenmaze.grid(row=3, column=11, padx=20, pady=10,columnspan=10,sticky="ew")
     lalgtxt.grid(row=4, column=11, padx=20, pady=10,columnspan=6,sticky="w")
     bsolamaze.grid(row=5, column=11, padx=20, pady=10,columnspan=5,sticky="w")
     bsolsmaze.grid(row=5, column=16, padx=20, pady=10,columnspan=5,sticky="e")
@@ -144,9 +166,9 @@ def pmazecontrols():
     limgtypetxt.grid(row=8, column=11, padx=20, pady=10,columnspan=5,sticky="w")
     sbimgtype.set(".png")
     sbimgtype.grid(row=8, column=16, padx=20, pady=10,columnspan=5,sticky="e")
-    bsaveimg.grid(row=9, column=11, padx=20, pady=10,columnspan=10,sticky="w")
+    bsaveimg.grid(row=9, column=11, padx=20, pady=10,columnspan=10,sticky="ew")
 
-n,x,y,f,h,w=0,1,1,[],1,1
+lock,n,x,y,f,h,w=False,0,1,1,[],1,1
 win = tk.CTk()
 win.title("Maze Game")
 win.geometry(str(win.winfo_screenwidth()) + "x" + str(win.winfo_screenheight()))
@@ -177,7 +199,7 @@ lgentxt = tk.CTkLabel(fmazecontrols, text="Configure and Generate:", font=tk.CTk
 emazesize = tk.CTkEntry(fmazecontrols, placeholder_text="Enter Maze Size(1-x)",width=350,corner_radius=30)
 bgenmaze = tk.CTkButton(fmazecontrols, corner_radius=30, text="generate maze", command=genm)
 lalgtxt = tk.CTkLabel(fmazecontrols, text="Algoritmic solving:", font=tk.CTkFont(size=20, weight="bold"))
-bsolamaze = tk.CTkButton(fmazecontrols, corner_radius=30, text="Solve fast", command=lambda: progressbar.start(),width=155)
+bsolamaze = tk.CTkButton(fmazecontrols, corner_radius=30, text="Solve fast", command=solvemaze,width=155)
 bsolsmaze = tk.CTkButton(fmazecontrols, corner_radius=30, text="see the program", command=lambda: progressbar.start(),width=155)
 lsavefiletxt = tk.CTkLabel(fmazecontrols, text="Saving and Exporting:", font=tk.CTkFont(size=20, weight="bold"))
 bfilesave = tk.CTkButton(fmazecontrols, corner_radius=30, text="Save File", command=lambda: progressbar.start(),width=155)
@@ -190,6 +212,6 @@ win.bind("<Left>", left)
 win.bind("<Right>", right)
 win.bind("<Up>", up)
 win.bind("<Down>", down)
-fmazegame.bind("<Configure>", resize_image)
+fmazegame.bind("<Configure>", resizeimage)
 plogin()
 win.mainloop()
