@@ -31,6 +31,7 @@ def solvemaze():
     if lock:
         return
     f[0]=mazessolve(f[1],f[0])
+    f.append(f[0].copy())
     placeimg()
     lockmaze()
     
@@ -123,6 +124,7 @@ def genm():
     x,y=1,1
     n=int(emazesize.get())
     f=mazegenerate(n)
+    f.append(f[0].copy())
     global lmazepic
     img = f[0].resize((win.winfo_screenheight() - 120, win.winfo_screenheight() - 120),Image.NONE)
     lmazepicl.grid(row=0, column=0, padx=10, pady=10)
@@ -166,7 +168,8 @@ def pmazecontrols():
     limgtypetxt.grid(row=8, column=11, padx=20, pady=10,columnspan=5,sticky="w")
     sbimgtype.set(".png")
     sbimgtype.grid(row=8, column=16, padx=20, pady=10,columnspan=5,sticky="e")
-    bsaveimg.grid(row=9, column=11, padx=20, pady=10,columnspan=10,sticky="ew")
+    bsaveimgs.grid(row=9, column=11, padx=20, pady=10,columnspan=10,sticky="ew")
+    bsaveimguns.grid(row=10, column=11, padx=20, pady=10,columnspan=10,sticky="ew")
 
 lock,n,x,y,f,h,w=False,0,1,1,[],1,1
 win = tk.CTk()
@@ -207,7 +210,8 @@ bfileload = tk.CTkButton(fmazecontrols, corner_radius=30, text="Load File", comm
 limgtypetxt = tk.CTkLabel(fmazecontrols, text="Select Image Type:", font=tk.CTkFont(size=15, weight="bold"))
 sbimgtype = tk.CTkSegmentedButton(fmazecontrols, values=[".jpg", ".png", ".svg"],corner_radius=30)
 sbimgtype.set(".png")
-bsaveimg = tk.CTkButton(fmazecontrols, corner_radius=30, text="export to image", command=lambda: progressbar.start(),width=350)
+bsaveimgs = tk.CTkButton(fmazecontrols, corner_radius=30, text="export unsoved maze to image", command=lambda: f[2].resize((1080,1080), Image.NONE).save(str("C:\\Users\\chotu\\downloads\\output"+sbimgtype.get())))
+bsaveimguns = tk.CTkButton(fmazecontrols, corner_radius=30, text="export solved maze to image", command=lambda: f[3].resize((1080,1080), Image.NONE).save(str("C:\\Users\\chotu\\downloads\\output"+sbimgtype.get())))
 win.bind("<Left>", left)
 win.bind("<Right>", right)
 win.bind("<Up>", up)
