@@ -1,7 +1,7 @@
 from mazegenerator import mazegenerate
 from mazesolver import mazessolve
 import customtkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox,filedialog
 from PIL import Image, ImageTk
 def lockmaze():
     global lock,emazesize
@@ -210,8 +210,8 @@ bfileload = tk.CTkButton(fmazecontrols, corner_radius=30, text="Load File", comm
 limgtypetxt = tk.CTkLabel(fmazecontrols, text="Select Image Type:", font=tk.CTkFont(size=15, weight="bold"))
 sbimgtype = tk.CTkSegmentedButton(fmazecontrols, values=[".jpg", ".png", ".svg"],corner_radius=30)
 sbimgtype.set(".png")
-bsaveimgs = tk.CTkButton(fmazecontrols, corner_radius=30, text="export unsoved maze to image", command=lambda: f[2].resize((1080,1080), Image.NONE).save(str("C:\\Users\\chotu\\downloads\\output"+sbimgtype.get())))
-bsaveimguns = tk.CTkButton(fmazecontrols, corner_radius=30, text="export solved maze to image", command=lambda: f[3].resize((1080,1080), Image.NONE).save(str("C:\\Users\\chotu\\downloads\\output"+sbimgtype.get())))
+bsaveimgs = tk.CTkButton(fmazecontrols, corner_radius=30, text="export unsoved maze to image", command=lambda: f[2].resize((1080,1080), Image.NONE).save(filedialog.asksaveasfilename(initialdir="/",title="Save File As",initialfile="output",defaultextension=sbimgtype.get())))
+bsaveimguns = tk.CTkButton(fmazecontrols, corner_radius=30, text="export solved maze to image", command=lambda: f[3].resize((1080,1080), Image.NONE).save(filedialog.asksaveasfilename(initialdir="/",title="Save File As",initialfile="output",defaultextension=sbimgtype.get())))
 win.bind("<Left>", left)
 win.bind("<Right>", right)
 win.bind("<Up>", up)
