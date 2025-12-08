@@ -1,5 +1,6 @@
 from mazegenerator import mazegenerate
 from mazesolver import mazessolve
+from login import login,signup
 import customtkinter as tk
 from tkinter import messagebox,filedialog
 from PIL import Image, ImageTk
@@ -132,10 +133,24 @@ def genm():
     emazesize.configure(state="readonly")
 
 def dlogin():
-    global flogin
-    flogin.grid_forget() 
-    messagebox.showinfo("ERROR", "404 Not Found")
-    pmazecontrols()
+    username=eusermane.get()
+    password=epassword.get()
+    if login(username,password):
+        global flogin
+        flogin.grid_forget() 
+        messagebox.showinfo("Logged In", "Successfully logged in")
+        pmazecontrols()
+    else:
+        messagebox.showerror("Error", "Invalid username or password")
+        
+def dsignup():
+    username=eusermane.get()
+    password=epassword.get()
+    try:
+        signup(username,password)
+        messagebox.showinfo("Signed Up", "Successfully signed up, you can now log in")
+    except:
+        messagebox.showerror("Error", "An error occurred during login/signup")
 
 def plogin():
     flogin.grid(row=0, column=0, padx=20, pady=20 ,columnspan=2, rowspan=5)
@@ -184,7 +199,7 @@ flogin = tk.CTkFrame(master=win, corner_radius=20)
 llogintxt = tk.CTkLabel(flogin, text="Log in OR Sign Up", font=tk.CTkFont(size=20, weight="bold"))
 eusermane = tk.CTkEntry(flogin, placeholder_text="Enter Username",width=325,corner_radius=30)
 epassword = tk.CTkEntry(flogin, placeholder_text="Enter password",width=325,corner_radius=30, show='*')
-bsignup = tk.CTkButton(flogin, corner_radius=30, text="Sign up", command=dlogin)
+bsignup = tk.CTkButton(flogin, corner_radius=30, text="Sign up", command=dsignup)
 blogin = tk.CTkButton(flogin, corner_radius=30, text="login", command=dlogin)
 try:
     llogo = tk.CTkImage(dark_image=Image.open("./im.png"),size=(300,300))
@@ -208,7 +223,7 @@ lsavefiletxt = tk.CTkLabel(fmazecontrols, text="Saving and Exporting:", font=tk.
 bfilesave = tk.CTkButton(fmazecontrols, corner_radius=30, text="Save File", command=lambda: progressbar.start(),width=155)
 bfileload = tk.CTkButton(fmazecontrols, corner_radius=30, text="Load File", command=lambda: progressbar.start(),width=155)
 limgtypetxt = tk.CTkLabel(fmazecontrols, text="Select Image Type:", font=tk.CTkFont(size=15, weight="bold"))
-sbimgtype = tk.CTkSegmentedButton(fmazecontrols, values=[".jpg", ".png", ".svg"],corner_radius=30)
+sbimgtype = tk.CTkSegmentedButton(fmazecontrols, values=[".jpg", ".png", ".webp"],corner_radius=30)
 sbimgtype.set(".png")
 bsaveimgs = tk.CTkButton(fmazecontrols, corner_radius=30, text="export unsoved maze to image", command=lambda: f[2].resize((1080,1080), Image.NONE).save(filedialog.asksaveasfilename(initialdir="/",title="Save File As",initialfile="output",defaultextension=sbimgtype.get())))
 bsaveimguns = tk.CTkButton(fmazecontrols, corner_radius=30, text="export solved maze to image", command=lambda: f[3].resize((1080,1080), Image.NONE).save(filedialog.asksaveasfilename(initialdir="/",title="Save File As",initialfile="output",defaultextension=sbimgtype.get())))
