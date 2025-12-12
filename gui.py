@@ -307,24 +307,25 @@ def genm():
     emazesize.configure(state="readonly")
 
 #LOGIN AND SIGNUP
-def pgamertag():
-    fgamertag.grid(row=0, column=0, padx=20, pady=20 ,columnspan=2, rowspan=5)
-    ecreateusermane.grid(row=1, column=0, padx=20, pady=10,columnspan=2)
-    bnext3.grid(row=2, column=0, columnspan=6, padx=10, pady=10,sticky="ew")
-#PLAYING MAZE
 def pname():
-    fgamertag.grid(row=0, column=0, padx=20, pady=20 ,columnspan=2, rowspan=5)
+    global flogin
+    flogin.grid_forget()
+    fname.grid(row=0, column=0, padx=20, pady=20 ,columnspan=2, rowspan=5)
     efirstname.grid(row=2, column=0, padx=20, pady=10,columnspan=2)
     elastname.grid(row=3, column=0, padx=20, pady=10,columnspan=2)
-    bnext4.grid(row=4, column=0, columnspan=6, padx=10, pady=10,sticky="ew")
-def ppassword():
-    fgamertag.grid(row=0, column=0, padx=20, pady=20 ,columnspan=2, rowspan=5)
-    ecreatepassword.grid(row=2, column=0, padx=20, pady=10,columnspan=2)
-    econfirmpassword.grid(row=3, column=0, padx=20, pady=10,columnspan=2)
-    bnext5.grid(row=4, column=0, columnspan=6, padx=10, pady=10,sticky="ew")
+    bnext1.grid(row=4, column=0, columnspan=6, padx=10, pady=10,sticky="ew")
+
+def pemail():
+    global fname
+    fname.grid_forget()
+    femail.grid(row=0, column=0, padx=20, pady=20)
+    lemail.grid(row=0, column=0, padx=20, pady=10, columnspan=2,sticky="ew")
+    eemail.grid(row=1, column=0, padx=20, pady=10, columnspan=2,sticky="ew")
+    bnext2.grid(row=2, column=0, padx=20, pady=10, columnspan=2,sticky="ew")
 
 def potp():
-    global otpcode
+    global otpcode,femail
+    femail.grid_forget()
     fotp.grid(row=0, column=0, padx=20, pady=20 ,columnspan=10, rowspan=10)
     eotp1.grid(row=0, column=1, padx=10, pady=10,sticky="ew")
     eotp2.grid(row=0, column=2, padx=10, pady=10,sticky="ew")
@@ -332,9 +333,30 @@ def potp():
     eotp4.grid(row=0, column=4, padx=10, pady=10,sticky="ew")
     eotp5.grid(row=0, column=5, padx=10, pady=10,sticky="ew")
     eotp6.grid(row=0, column=6, padx=10, pady=10,sticky="ew")
-    bnext2.grid(row=1, column=1, columnspan=6, padx=10, pady=10,sticky="ew")
+    bnext3.grid(row=1, column=1, columnspan=6, padx=10, pady=10,sticky="ew")
+
+def ppassword():
+    global fotp
+    fotp.grid_forget()
+    fpassword.grid(row=0, column=0, padx=20, pady=20 ,columnspan=2, rowspan=5)
+    ecreatepassword.grid(row=2, column=0, padx=20, pady=10,columnspan=2)
+    econfirmpassword.grid(row=3, column=0, padx=20, pady=10,columnspan=2)
+    bnext4.grid(row=4, column=0, columnspan=6, padx=10, pady=10,sticky="ew")
+
+def pgamertag():
+    global fpassword
+    fpassword.grid_forget()
+    fgamertag.grid(row=0, column=0, padx=20, pady=20 ,columnspan=2, rowspan=5)
+    ecreateusermane.grid(row=1, column=0, padx=20, pady=10,columnspan=2)
+    bnext5.grid(row=2, column=0, columnspan=6, padx=10, pady=10,sticky="ew")
+
+def dsignup():
+    global fgamertag
+    fgamertag.grid_forget()
+    pmazecontrols()
 
 def dlogin():
+    
     username=eusermane.get()
     password=epassword.get()
     if login(username,password):
@@ -344,24 +366,6 @@ def dlogin():
         pmazecontrols()
     else:
         messagebox.showerror("Error", "Invalid username or password")
-        
-def dsignup():
-    username=eusermane.get()
-    password=epassword.get()
-    try:
-        signup(username,password)
-        messagebox.showinfo("Signed Up", "Successfully signed up, you can now log in")
-    except:
-        messagebox.showerror("Error", "An error occurred during login/signup")
-
-#LAYOUT FUNCTIONS
-def pemail():
-    global flogin
-    flogin.grid_forget()
-    femail.grid(row=0, column=0, padx=20, pady=20)
-    lemail.grid(row=0, column=0, padx=20, pady=10, columnspan=2,sticky="ew")
-    eemail.grid(row=1, column=0, padx=20, pady=10, columnspan=2,sticky="ew")
-    bnext1.grid(row=2, column=0, padx=20, pady=10, columnspan=2,sticky="ew")
 
 def plogin():
     flogin.grid(row=0, column=0, padx=20, pady=20 ,columnspan=2, rowspan=5)
@@ -411,7 +415,7 @@ flogin = tk.CTkFrame(master=win, corner_radius=20)
 llogintxt = tk.CTkLabel(flogin, text="Log in OR Sign Up", font=tk.CTkFont(size=20, weight="bold"))
 eusermane = tk.CTkEntry(flogin, placeholder_text="Enter Username",width=325,corner_radius=30)
 epassword = tk.CTkEntry(flogin, placeholder_text="Enter password",width=325,corner_radius=30, show='*')
-bsignup = tk.CTkButton(flogin, corner_radius=30,fg_color='transparent', hover=False, text="don't have an account?", text_color="#67C1FD", command=pemail)
+bsignup = tk.CTkButton(flogin, corner_radius=30,fg_color='transparent', hover=False, text="don't have an account?", text_color="#67C1FD", command=pname)
 blogin = tk.CTkButton(flogin, corner_radius=30, text="login", command=dlogin)
 try:
     llogo = tk.CTkImage(dark_image=Image.open("./im.png"),size=(300,300))
@@ -453,10 +457,17 @@ fmazegame.bind("<Configure>", resizeimage)
 bsignup.bind("<Enter>", lambda event: bsignup.cget("font").configure(underline=True))
 bsignup.bind("<Leave>", lambda event: bsignup.cget("font").configure(underline=False))
 
+
+fname = tk.CTkFrame(master=win, corner_radius=20)
+efirstname = tk.CTkEntry(fname, placeholder_text="Enter your first name",width=325,corner_radius=30)
+elastname = tk.CTkEntry(fname, placeholder_text="Enter your last name",width=325,corner_radius=30)
+bnext1= tk.CTkButton(master=fname, text="Next", corner_radius=20,command=pemail)
+
 femail = tk.CTkFrame(master=win, corner_radius=20)
 lemail = tk.CTkLabel(master=femail, text="Enter your email adress", font=tk.CTkFont(size=20, weight="bold"))
 eemail= tk.CTkEntry(master=femail, placeholder_text="Enter your email", width=300, border_width=2, corner_radius=30)
-bnext1= tk.CTkButton(master=femail, text="Next", corner_radius=20, command=sendemail)
+bnext2= tk.CTkButton(master=femail, text="Next", corner_radius=20, command=sendemail)
+
 fotp = tk.CTkFrame(master=win, corner_radius=20)
 eotp1= tk.CTkEntry(master=fotp, placeholder_text="x", width=40, height=60, border_width=2, corner_radius=10, justify='center',font=tk.CTkFont(size=24))
 eotp2= tk.CTkEntry(master=fotp, placeholder_text="x", width=40, height=60, border_width=2, corner_radius=10, justify='center',font=tk.CTkFont(size=24))
@@ -464,7 +475,8 @@ eotp3= tk.CTkEntry(master=fotp, placeholder_text="x", width=40, height=60, borde
 eotp4= tk.CTkEntry(master=fotp, placeholder_text="x", width=40, height=60, border_width=2, corner_radius=10, justify='center',font=tk.CTkFont(size=24))
 eotp5= tk.CTkEntry(master=fotp, placeholder_text="x", width=40, height=60, border_width=2, corner_radius=10, justify='center',font=tk.CTkFont(size=24))
 eotp6= tk.CTkEntry(master=fotp, placeholder_text="x", width=40, height=60, border_width=2, corner_radius=10, justify='center',font=tk.CTkFont(size=24))
-bnext2= tk.CTkButton(master=fotp, text="Next", corner_radius=20,command=checkotp)
+bnext3= tk.CTkButton(master=fotp, text="Next", corner_radius=20,command=checkotp)
+
 eotp1.bind("<KeyRelease>", lambda event: nextbox(event, eotp1, eotp2))
 eotp2.bind("<KeyRelease>", lambda event: nextbox(event, eotp2, eotp3))
 eotp3.bind("<KeyRelease>", lambda event: nextbox(event, eotp3, eotp4))
@@ -475,17 +487,15 @@ eotp3.bind("<BackSpace>", lambda event: prevbox(event, eotp3, eotp2))
 eotp4.bind("<BackSpace>", lambda event: prevbox(event, eotp4, eotp3))
 eotp5.bind("<BackSpace>", lambda event: prevbox(event, eotp5, eotp4))
 eotp6.bind("<BackSpace>", lambda event: prevbox(event, eotp6, eotp5))
-fgamertag = tk.CTkFrame(master=win, corner_radius=20)
-ecreateusermane = tk.CTkEntry(fgamertag, placeholder_text="Enter Username",width=325,corner_radius=30)
-bnext3= tk.CTkButton(master=fgamertag, text="Next", corner_radius=20,command=pname)
-fname = tk.CTkFrame(master=win, corner_radius=20)
-efirstname = tk.CTkEntry(fname, placeholder_text="Enter Username",width=325,corner_radius=30)
-elastname = tk.CTkEntry(fname, placeholder_text="Enter Username",width=325,corner_radius=30)
-bnext4= tk.CTkButton(master=fname, text="Next", corner_radius=20,command=ppassword)
+
 fpassword = tk.CTkFrame(master=win, corner_radius=20)
 ecreatepassword = tk.CTkEntry(fpassword, placeholder_text="Enter password",width=325,corner_radius=30, show='*')
 econfirmpassword = tk.CTkEntry(fpassword, placeholder_text="Enter password again",width=325,corner_radius=30, show='*')
-bnext5= tk.CTkButton(master=fpassword, text="Next", corner_radius=20,command=plogin)
+bnext4= tk.CTkButton(master=fpassword, text="Next", corner_radius=20,command=pgamertag)
+
+fgamertag = tk.CTkFrame(master=win, corner_radius=20)
+ecreateusermane = tk.CTkEntry(fgamertag, placeholder_text="Enter Gamertag",width=325,corner_radius=30)
+bnext5= tk.CTkButton(master=fgamertag, text="Sign Up!", corner_radius=20,command=dsignup)
 
 plogin()
 win.mainloop()
