@@ -1,6 +1,6 @@
 import smtplib
 import random
-def otp(recipient_email,appkey='utov sfiw dmdy qwco'):
+def otp(recipient_email,appkey=''):
     smtp=smtplib.SMTP('smtp.gmail.com', 587)
     smtp.starttls()
     smtp.login('mazegameotp@gmail.com',appkey)
