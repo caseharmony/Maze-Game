@@ -3,8 +3,9 @@ def mazessolve(maze,image):
     j = 0
     forkprocessor = []
     path = []
-    while not (i == len(maze) - 1 and j == len(
-            maze) - 1):
+    coords= []
+    while not (i == len(maze) - 1 and j == len(maze) - 1):
+        coords.append((i,j))
         if maze[i][j][0] == -2:
             i = forkprocessor[len(forkprocessor) - 3]
             j = forkprocessor[len(forkprocessor) - 2]
@@ -104,5 +105,5 @@ def mazessolve(maze,image):
                 image.putpixel((j + j, i + i + 1), (0, 255, 0))
                 j = j - 1
             path.pop(0)
-    return image
+    return image,coords
 

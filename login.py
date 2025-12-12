@@ -17,7 +17,4 @@ def signup(username,password):
     cur.execute("INSERT INTO login VALUES(%s,%s)",(username,bcrypt.hashpw(password.encode("utf-8"),bcrypt.gensalt())))
     db.commit()
 
-print(login('admin','admin123'))
-cur.execute("DELETE FROM login")
-cur.execute("SELECT * FROM login")
-print(cur.fetchall())
+
