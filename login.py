@@ -13,8 +13,7 @@ def login(username,password):
     except:
         return False
 
-def signup(username,password):
-    cur.execute("INSERT INTO login VALUES(%s,%s)",(username,bcrypt.hashpw(password.encode("utf-8"),bcrypt.gensalt())))
+def signup(username,password,firstname,lastname,email):
+    password=bcrypt.hashpw(password.encode("utf-8"),bcrypt.gensalt())
+    cur.execute("INSERT INTO login (gamertag, password, firstname, lastname, email) VALUES (%s, %s, %s, %s, %s)", (username,password,firstname,lastname,email))
     db.commit()
-
-
