@@ -1,486 +1,469 @@
 from dfs import mazegenerate
+from primz import prim
 from bruteforce import mazessolve
+from sendemail import otp
 from login import login,signup
 import customtkinter as tk
-from tkinter import messagebox,filedialog
-from PIL import Image, ImageTk
-from sendemail import otp
-import winsound
-from primz import prim
+from tkinter import filedialog
+from PIL import Image
+from pygame import mixer as mk
+import pywinstyles
 
-def traverse(something):
+def traverse(path):
     global f
-    #first thing in forks - found by going down first path
-    #second thing in forks - found by going down second path
-    #and so on
-    forks = []
-    h, k = something
-    red = (h, k)
-    g, p = h, k
-    if f[1][g][p][0] == 0:
-        g = g - 1
-    elif f[1][g][p][0] == 1:
-        g = g + 1
-    elif f[1][g][p][0] == 2:
-        p = p - 1
+    forks=[]
+    h,k=path
+    red=(h,k)
+    g,p=h,k
+    if f[1][g][p][0]==0:
+        g=g - 1
+    elif f[1][g][p][0]==1:
+        g=g + 1
+    elif f[1][g][p][0]==2:
+        p=p - 1
     else:
-        p = p + 1
-
-    if f[1][h][k][1] == 0:
-        h = h - 1
-    elif f[1][h][k][1] == 1:
-        h = h + 1
-    elif f[1][h][k][1] == 2:
-        k = k - 1
+        p=p + 1
+    if f[1][h][k][1]==0:
+        h=h - 1
+    elif f[1][h][k][1]==1:
+        h=h + 1
+    elif f[1][h][k][1]==2:
+        k=k - 1
     else:
-        k = k + 1
-
+        k=k + 1
     while True:
-        if f[1][g][p][0] == -2:
+        if f[1][g][p][0]==-2:
             break
         elif len(f[1][g][p]) > 1:
             break
-        elif g == len(f[1]) - 1 == p:
+        elif g==len(f[1]) - 1==p:
             break
-        #print(g,f,'pointer',f[1][g][f])
-        if f[1][g][p][0] == 0:
-            g = g - 1
-        elif f[1][g][p][0] == 1:
-            g = g + 1
-        elif f[1][g][p][0] == 2:
-            p = p - 1
+        if f[1][g][p][0]==0:
+            g=g - 1
+        elif f[1][g][p][0]==1:
+            g=g + 1
+        elif f[1][g][p][0]==2:
+            p=p - 1
         else:
-            p = p + 1
-    forks.append((g, p))
+            p=p + 1
+    forks.append((g,p))
     while True:
-        if f[1][h][k][0] == -2:
+        if f[1][h][k][0]==-2:
             break
         elif len(f[1][h][k]) > 1:
             break
-        elif h == len(f[1]) - 1 == k:
+        elif h==len(f[1]) - 1==k:
             break
-        #print(h,k,'pointer',f[1][h][k])
-        if f[1][h][k][0] == 0:
-            h = h - 1
-        elif f[1][h][k][0] == 1:
-            h = h + 1
-        elif f[1][h][k][0] == 2:
-            k = k - 1
+        if f[1][h][k][0]==0:
+            h=h - 1
+        elif f[1][h][k][0]==1:
+            h=h + 1
+        elif f[1][h][k][0]==2:
+            k=k - 1
         else:
-            k = k + 1
-    forks.append((h, k))
-    h, k = red
-    if len(f[1][h][k]) == 3:
-        if f[1][h][k][2] == 0:
-            h = h - 1
-        elif f[1][h][k][2] == 1:
-            h = h + 1
-        elif f[1][h][k][2] == 2:
-            k = k - 1
+            k=k + 1
+    forks.append((h,k))
+    h,k=red
+    if len(f[1][h][k])==3:
+        if f[1][h][k][2]==0:
+            h=h - 1
+        elif f[1][h][k][2]==1:
+            h=h + 1
+        elif f[1][h][k][2]==2:
+            k=k - 1
         else:
-            k = k + 1
+            k=k + 1
         while True:
-            if f[1][h][k][0] == -2:
+            if f[1][h][k][0]==-2:
                 break
             elif len(f[1][h][k]) > 1:
                 break
-            elif h == len(f[1]) - 1 == k:
+            elif h==len(f[1]) - 1==k:
                 break
-            #print(h,k,'pointer',f[1][h][k])
-            if f[1][h][k][0] == 0:
-                h = h - 1
-            elif f[1][h][k][0] == 1:
-                h = h + 1
-            elif f[1][h][k][0] == 2:
-                k = k - 1
+            if f[1][h][k][0]==0:
+                h=h - 1
+            elif f[1][h][k][0]==1:
+                h=h + 1
+            elif f[1][h][k][0]==2:
+                k=k - 1
             else:
-                k = k + 1
-        forks.append((h, k))
+                k=k + 1
+        forks.append((h,k))
     return forks
 
 def heurestic(a):
     return (len(f[1]) - a[0]) ** 2 + (len(f[1]) - a[1]) ** 2
 
-def realtimesolver2():
+def realtimeastar():
     global lock
     if lock:
         return
-    lock = True
+    lock=True
     global f
-    spots = [(0, 0)]
-    tree = {(0, 0): None}
-    lf = [(0, 0)]
-    i, j = 0, 0
-    y = 0
-    while not (i == len(f[1]) - 1 and j == len(f[1]) - 1):
+    spots=[(0,0)]
+    tree={(0,0): None}
+    lf=[(0,0)]
+    i,j=0,0
+    y=0
+    while not (i==len(f[1]) - 1 and j==len(f[1]) - 1):
         placeimg()
         win.update()
         win.update_idletasks()
-        minimum = heurestic(spots[0])
-        t = spots[0]
-        y = 0
+        minimum=heurestic(spots[0])
+        t=spots[0]
+        y=0
         for x in range(len(spots)):
             if heurestic(spots[x]) < minimum:
-                minimum = heurestic(spots[x])
-                t = spots[x]
-                y = x #y can also be used to give the last fork of any spot in spots. if you are at any  spot i,j, and you know its y, you can tell its last fork
-        i, j = t
-        f[0].putpixel((j + j + 1, i + i + 1), (0, 255, 0))
-        if len(f[1][i][j]) == 1:
-            #spots.remove(t)
-            if f[1][i][j][0] == 0:
-                f[0].putpixel((j + j + 1, i + i), (0, 255, 0))
-                i = i - 1
-                f[0].putpixel((j + j + 1, i + i + 1), (0, 255, 0))
-                spots[y] = (i, j)
-            elif f[1][i][j][0] == 1:
-                f[0].putpixel((j + j + 1, i + i + 2), (0, 255, 0))
-                i = i + 1
-                f[0].putpixel((j + j + 1, i + i + 1), (0, 255, 0))
-                spots[y] = (i, j)
-            elif f[1][i][j][0] == 2:
-                f[0].putpixel((j + j, i + i + 1), (0, 255, 0))
-                j = j - 1
-                f[0].putpixel((j + j + 1, i + i + 1), (0, 255, 0))
-                spots[y] = (i, j)
-            elif f[1][i][j][0] == 3:
-                f[0].putpixel((j + j + 2, i + i + 1), (0, 255, 0))
-                j = j + 1
-                f[0].putpixel((j + j + 1, i + i + 1), (0, 255, 0))
-                spots[y] = (i, j)
+                minimum=heurestic(spots[x])
+                t=spots[x]
+                y=x
+        i,j=t
+        f[0].putpixel((j + j + 1,i + i + 1),(0,255,0))
+        if len(f[1][i][j])==1:
+            if f[1][i][j][0]==0:
+                f[0].putpixel((j + j + 1,i + i),(0,255,0))
+                i=i - 1
+                f[0].putpixel((j + j + 1,i + i + 1),(0,255,0))
+                spots[y]=(i,j)
+            elif f[1][i][j][0]==1:
+                f[0].putpixel((j + j + 1,i + i + 2),(0,255,0))
+                i=i + 1
+                f[0].putpixel((j + j + 1,i + i + 1),(0,255,0))
+                spots[y]=(i,j)
+            elif f[1][i][j][0]==2:
+                f[0].putpixel((j + j,i + i + 1),(0,255,0))
+                j=j - 1
+                f[0].putpixel((j + j + 1,i + i + 1),(0,255,0))
+                spots[y]=(i,j)
+            elif f[1][i][j][0]==3:
+                f[0].putpixel((j + j + 2,i + i + 1),(0,255,0))
+                j=j + 1
+                f[0].putpixel((j + j + 1,i + i + 1),(0,255,0))
+                spots[y]=(i,j)
             else:
                 spots.pop(y)
                 lf.pop(y)
-        elif len(f[1][i][j]) == 2:
-            h, k = i, j
-            d = lf.pop(y)
-            tree[(i, j)] = d
-            lf.append((i, j))
-            lf.append((i, j))
-
-            if f[1][i][j][0] == 0:
-                f[0].putpixel((k + k + 1, h + h), (0, 255, 0))
-                h = h - 1
-                f[0].putpixel((k + k + 1, h + h + 1), (0, 255, 0))
-            elif f[1][i][j][0] == 1:
-                f[0].putpixel((k + k + 1, h + h + 2), (0, 255, 0))
-                h = h + 1
-                f[0].putpixel((k + k + 1, h + h + 1), (0, 255, 0))
-            elif f[1][i][j][0] == 2:
-                f[0].putpixel((k + k, h + h + 1), (0, 255, 0))
-                k = k - 1
-                f[0].putpixel((k + k + 1, h + h + 1), (0, 255, 0))
+        elif len(f[1][i][j])==2:
+            h,k=i,j
+            d=lf.pop(y)
+            tree[(i,j)]=d
+            lf.append((i,j))
+            lf.append((i,j))
+            if f[1][i][j][0]==0:
+                f[0].putpixel((k + k + 1,h + h),(0,255,0))
+                h=h - 1
+                f[0].putpixel((k + k + 1,h + h + 1),(0,255,0))
+            elif f[1][i][j][0]==1:
+                f[0].putpixel((k + k + 1,h + h + 2),(0,255,0))
+                h=h + 1
+                f[0].putpixel((k + k + 1,h + h + 1),(0,255,0))
+            elif f[1][i][j][0]==2:
+                f[0].putpixel((k + k,h + h + 1),(0,255,0))
+                k=k - 1
+                f[0].putpixel((k + k + 1,h + h + 1),(0,255,0))
             else:
-                f[0].putpixel((k + k + 2, h + h + 1), (0, 255, 0))
-                k = k + 1
-                f[0].putpixel((k + k + 1, h + h + 1), (0, 255, 0))
-
-            if f[1][i][j][1] == 0:
-                f[0].putpixel((j + j + 1, i + i ), (0, 255, 0))
-                i = i - 1
-                f[0].putpixel((j + j + 1, i + i + 1 ), (0, 255, 0))
-            elif f[1][i][j][1] == 1:
-                f[0].putpixel((j + j + 1, i + i + 2 ), (0, 255, 0))
-                i = i + 1
-                f[0].putpixel((j + j + 1, i + i + 1 ), (0, 255, 0))
-            elif f[1][i][j][1] == 2:
-                f[0].putpixel((j + j , i + i + 1 ), (0, 255, 0))
-                j = j - 1
-                f[0].putpixel((j + j + 1, i + i + 1 ), (0, 255, 0))
+                f[0].putpixel((k + k + 2,h + h + 1),(0,255,0))
+                k=k + 1
+                f[0].putpixel((k + k + 1,h + h + 1),(0,255,0))
+            if f[1][i][j][1]==0:
+                f[0].putpixel((j + j + 1,i + i ),(0,255,0))
+                i=i - 1
+                f[0].putpixel((j + j + 1,i + i + 1 ),(0,255,0))
+            elif f[1][i][j][1]==1:
+                f[0].putpixel((j + j + 1,i + i + 2 ),(0,255,0))
+                i=i + 1
+                f[0].putpixel((j + j + 1,i + i + 1 ),(0,255,0))
+            elif f[1][i][j][1]==2:
+                f[0].putpixel((j + j,i + i + 1 ),(0,255,0))
+                j=j - 1
+                f[0].putpixel((j + j + 1,i + i + 1 ),(0,255,0))
             else:
-                f[0].putpixel((j + j + 2, i + i + 1 ), (0, 255, 0))
-                j = j + 1
-                f[0].putpixel((j + j + 1, i + i + 1 ), (0, 255, 0))
+                f[0].putpixel((j + j + 2,i + i + 1 ),(0,255,0))
+                j=j + 1
+                f[0].putpixel((j + j + 1,i + i + 1 ),(0,255,0))
             spots.pop(y)
-            spots.append((i, j))
-            spots.append((h, k))
-            if heurestic((h, k)) > heurestic((i, j)):
+            spots.append((i,j))
+            spots.append((h,k))
+            if heurestic((h,k)) > heurestic((i,j)):
                 pass
             else:
-                i, j = h, k
-            y = -1
+                i,j=h,k
+            y=-1
             if i==len(f[1])-1==j:
                 print(lf[-1])
                 print('This is where the fork the end is supposed to come from')
                 print(tree[lf[-1]])
         else:
-            h, k = i, j
-            g, p = i, j
-            d = lf.pop(y)
-            tree[(i, j)] = d
-            lf.append((i, j))
-            lf.append((i, j))
-            lf.append((i, j))
-
-            if f[1][i][j][0] == 0:
-                f[0].putpixel((k + k + 1, h + h), (0, 255, 0))
-                h = h - 1
-                f[0].putpixel((k + k + 1, h + h + 1), (0, 255, 0))
-            elif f[1][i][j][0] == 1:
-                f[0].putpixel((k + k + 1, h + h + 2), (0, 255, 0))
-                h = h + 1
-                f[0].putpixel((k + k + 1, h + h + 1), (0, 255, 0))
-            elif f[1][i][j][0] == 2:
-                f[0].putpixel((k + k, h + h + 1), (0, 255, 0))
-                k = k - 1
-                f[0].putpixel((k + k + 1, h + h + 1), (0, 255, 0))
+            h,k=i,j
+            g,p=i,j
+            d=lf.pop(y)
+            tree[(i,j)]=d
+            lf.append((i,j))
+            lf.append((i,j))
+            lf.append((i,j))
+            if f[1][i][j][0]==0:
+                f[0].putpixel((k + k + 1,h + h),(0,255,0))
+                h=h - 1
+                f[0].putpixel((k + k + 1,h + h + 1),(0,255,0))
+            elif f[1][i][j][0]==1:
+                f[0].putpixel((k + k + 1,h + h + 2),(0,255,0))
+                h=h + 1
+                f[0].putpixel((k + k + 1,h + h + 1),(0,255,0))
+            elif f[1][i][j][0]==2:
+                f[0].putpixel((k + k,h + h + 1),(0,255,0))
+                k=k - 1
+                f[0].putpixel((k + k + 1,h + h + 1),(0,255,0))
             else:
-                f[0].putpixel((k + k + 2, h + h + 1), (0, 255, 0))
-                k = k + 1
-                f[0].putpixel((k + k + 1, h + h + 1), (0, 255, 0))
-
-            if f[1][i][j][1] == 0:
-                f[0].putpixel((p + p + 1, g + g), (0, 255, 0))
-                g = g - 1
-                f[0].putpixel((p + p + 1, g + g + 1), (0, 255, 0))
-            elif f[1][i][j][1] == 1:
-                f[0].putpixel((p + p + 1, g + g + 2), (0, 255, 0))
-                g = g + 1
-                f[0].putpixel((p + p + 1, g + g + 1), (0, 255, 0))
-            elif f[1][i][j][1] == 2:
-                f[0].putpixel((p + p, g + g + 1), (0, 255, 0))
-                p = p - 1
-                f[0].putpixel((p + p + 1, g + g + 1), (0, 255, 0))
+                f[0].putpixel((k + k + 2,h + h + 1),(0,255,0))
+                k=k + 1
+                f[0].putpixel((k + k + 1,h + h + 1),(0,255,0))
+            if f[1][i][j][1]==0:
+                f[0].putpixel((p + p + 1,g + g),(0,255,0))
+                g=g - 1
+                f[0].putpixel((p + p + 1,g + g + 1),(0,255,0))
+            elif f[1][i][j][1]==1:
+                f[0].putpixel((p + p + 1,g + g + 2),(0,255,0))
+                g=g + 1
+                f[0].putpixel((p + p + 1,g + g + 1),(0,255,0))
+            elif f[1][i][j][1]==2:
+                f[0].putpixel((p + p,g + g + 1),(0,255,0))
+                p=p - 1
+                f[0].putpixel((p + p + 1,g + g + 1),(0,255,0))
             else:
-                f[0].putpixel((p + p + 2, g + g + 1), (0, 255, 0))
-                p = p + 1
-                f[0].putpixel((p + p + 1, g + g + 1), (0, 255, 0))
-
-            if f[1][i][j][2] == 0:
-                f[0].putpixel((j + j + 1, i + i), (0, 255, 0))
-                i = i - 1
-                f[0].putpixel((j + j + 1, i + i + 1), (0, 255, 0))
-            elif f[1][i][j][2] == 1:
-                f[0].putpixel((j + j + 1, i + i + 2), (0, 255, 0))
-                i = i + 1
-                f[0].putpixel((j + j + 1, i + i + 1), (0, 255, 0))
-            elif f[1][i][j][2] == 2:
-                f[0].putpixel((j + j, i + i + 1), (0, 255, 0))
-                j = j - 1
-                f[0].putpixel((j + j + 1, i + i + 1), (0, 255, 0))
+                f[0].putpixel((p + p + 2,g + g + 1),(0,255,0))
+                p=p + 1
+                f[0].putpixel((p + p + 1,g + g + 1),(0,255,0))
+            if f[1][i][j][2]==0:
+                f[0].putpixel((j + j + 1,i + i),(0,255,0))
+                i=i - 1
+                f[0].putpixel((j + j + 1,i + i + 1),(0,255,0))
+            elif f[1][i][j][2]==1:
+                f[0].putpixel((j + j + 1,i + i + 2),(0,255,0))
+                i=i + 1
+                f[0].putpixel((j + j + 1,i + i + 1),(0,255,0))
+            elif f[1][i][j][2]==2:
+                f[0].putpixel((j + j,i + i + 1),(0,255,0))
+                j=j - 1
+                f[0].putpixel((j + j + 1,i + i + 1),(0,255,0))
             else:
-                f[0].putpixel((j + j + 2, i + i + 1), (0, 255, 0))
-                j = j + 1
-                f[0].putpixel((j + j + 1, i + i + 1), (0, 255, 0))
+                f[0].putpixel((j + j + 2,i + i + 1),(0,255,0))
+                j=j + 1
+                f[0].putpixel((j + j + 1,i + i + 1),(0,255,0))
             spots.pop(y)
-            spots.append((i, j))
-            spots.append((h, k))
-            spots.append((g, p))
-            u = min([(heurestic((i, j)), (i, j)), (heurestic((h, k)), (h, k)), (heurestic((g, p)), (g, p))],
+            spots.append((i,j))
+            spots.append((h,k))
+            spots.append((g,p))
+            u=min([(heurestic((i,j)),(i,j)),(heurestic((h,k)),(h,k)),(heurestic((g,p)),(g,p))],
                     key=lambda r: r[0])
-            i, j = u[1]
-            y = -1
-    path = [lf[y]]
-    d = tree[lf[y]]
-    while d != None:
+            i,j=u[1]
+            y=-1
+    path=[lf[y]]
+    d=tree[lf[y]]
+    while d !=None:
         path.append(d)
-        d = tree[d]
-    path = path[::-1]
-    path = path[1:]
-    #Now have to reconstruct the actual path
-    actual = []
+        d=tree[d]
+    path=path[::-1]
+    path=path[1:]
+    actual=[]
     for x in range(len(path) - 1):
-        d = traverse(path[x])
-        t = d.index(path[x + 1])
+        d=traverse(path[x])
+        t=d.index(path[x + 1])
         actual.append(f[1][path[x][0]][path[x][1]][t])
-
-    d = traverse(path[-1])
-    t = d.index((len(f[1]) - 1, len(f[1]) - 1))
+    d=traverse(path[-1])
+    t=d.index((len(f[1]) - 1,len(f[1]) - 1))
     actual.append(f[1][path[-1][0]][path[-1][1]][t])
     for i in range(1,n*2+1):
         for j in range(1,n*2+1):
-            d = f[0].getpixel((i,j))
+            d=f[0].getpixel((i,j))
             if d==(0,255,0):
                 f[0].putpixel((i,j),(255,255,255))
-    i = 0
-    j = 0
+    i=0
+    j=0
     while not (i==len(f[1])-1 and j==len(f[1])-1):
-        f[0].putpixel((j + j + 1, i + i + 1), (255, 0, 0))
-        if len(f[1][i][j]) == 1:
-            if f[1][i][j][0] == 0:
-                f[0].putpixel((j + j + 1, i + i), (255, 0, 0))
-                i = i - 1
-                f[0].putpixel((j + j + 1, i + i + 1), (255, 0, 0))
-            elif f[1][i][j][0] == 1:
-                f[0].putpixel((j + j + 1, i + i + 2), (255, 0, 0))
-                i = i + 1
-                f[0].putpixel((j + j + 1, i + i + 1), (255, 0, 0))
-            elif f[1][i][j][0] == 3:
-                f[0].putpixel((j + j + 2, i + i + 1), (255, 0, 0))
-                j = j + 1
-                f[0].putpixel((j + j + 1, i + i + 1), (255, 0, 0))
+        f[0].putpixel((j + j + 1,i + i + 1),(255,0,0))
+        if len(f[1][i][j])==1:
+            if f[1][i][j][0]==0:
+                f[0].putpixel((j + j + 1,i + i),(255,0,0))
+                i=i - 1
+                f[0].putpixel((j + j + 1,i + i + 1),(255,0,0))
+            elif f[1][i][j][0]==1:
+                f[0].putpixel((j + j + 1,i + i + 2),(255,0,0))
+                i=i + 1
+                f[0].putpixel((j + j + 1,i + i + 1),(255,0,0))
+            elif f[1][i][j][0]==3:
+                f[0].putpixel((j + j + 2,i + i + 1),(255,0,0))
+                j=j + 1
+                f[0].putpixel((j + j + 1,i + i + 1),(255,0,0))
             else:
-                f[0].putpixel((j + j, i + i + 1), (255, 0, 0))
-                j = j - 1
-                f[0].putpixel((j + j + 1, i + i + 1), (255, 0, 0))
+                f[0].putpixel((j + j,i + i + 1),(255,0,0))
+                j=j - 1
+                f[0].putpixel((j + j + 1,i + i + 1),(255,0,0))
         else:
-            f[0].putpixel((j + j + 1, i + i + 1), (255, 0, 0))
-            if actual[0] == 0:
-                f[0].putpixel((j + j + 1, i + i), (255, 0, 0))
-                i = i - 1
-                f[0].putpixel((j + j + 1, i + i + 1), (255, 0, 0))
-            elif actual[0] == 1:
-                f[0].putpixel((j + j + 1, i + i + 2), (255, 0, 0))
-                i = i + 1
-                f[0].putpixel((j + j + 1, i + i + 1), (255, 0, 0))
-            elif actual[0] == 3:
-                f[0].putpixel((j + j + 2, i + i + 1), (255, 0, 0))
-                j = j + 1
-                f[0].putpixel((j + j + 1, i + i + 1), (255, 0, 0))
+            f[0].putpixel((j + j + 1,i + i + 1),(255,0,0))
+            if actual[0]==0:
+                f[0].putpixel((j + j + 1,i + i),(255,0,0))
+                i=i - 1
+                f[0].putpixel((j + j + 1,i + i + 1),(255,0,0))
+            elif actual[0]==1:
+                f[0].putpixel((j + j + 1,i + i + 2),(255,0,0))
+                i=i + 1
+                f[0].putpixel((j + j + 1,i + i + 1),(255,0,0))
+            elif actual[0]==3:
+                f[0].putpixel((j + j + 2,i + i + 1),(255,0,0))
+                j=j + 1
+                f[0].putpixel((j + j + 1,i + i + 1),(255,0,0))
             else:
-                f[0].putpixel((j + j, i + i + 1), (255, 0, 0))
-                j = j - 1
-                f[0].putpixel((j + j + 1, i + i + 1), (255, 0, 0))
+                f[0].putpixel((j + j,i + i + 1),(255,0,0))
+                j=j - 1
+                f[0].putpixel((j + j + 1,i + i + 1),(255,0,0))
             actual.pop(0)
     for i in range(1,n*2+1):
         for j in range(1,n*2+1):
-            d = f[0].getpixel((i,j))
+            d=f[0].getpixel((i,j))
             if d==(0,255,0) or d==(50,50,50):
                 f[0].putpixel((i,j),(255,255,255))
     placeimg()
     win.update()
     win.update_idletasks()
-    lock = True
+    lock=True
 
-
-def realtimesolver():
-    i = 0
-    j = 0
-    forkprocessor = []
-    path = []
+def realtimebruteforce():
+    i=0
+    j=0
+    forkprocessor=[]
+    path=[]
     f[0].putpixel((1,1),(0,255,0))
-    while not (i == len(f[1]) - 1 and j == len(
-            f[1]) - 1): #stops when it reaches goal
-        if f[1][i][j][0] == -2: #Goes back to last fork if it reaches a dead end
-            i = forkprocessor[- 3]
-            j = forkprocessor[- 2]
-            f[0].putpixel((2*j+1,2*i+1),(50,50,50)) #Marks the fork as visited more than once
-            while not (i == path[-3] and j == path[- 2]): #Removes forks from the path till it goes back the fork we are on now
+    while not (i==len(f[1]) - 1 and j==len(
+            f[1]) - 1):
+        if f[1][i][j][0]==-2:
+            i=forkprocessor[- 3]
+            j=forkprocessor[- 2]
+            f[0].putpixel((2*j+1,2*i+1),(50,50,50))
+            while not (i==path[-3] and j==path[- 2]):
                 path.pop()
                 path.pop()
                 path.pop()
-            if forkprocessor[- 1]: #Visiting fork second time
+            if forkprocessor[- 1]:
                 path.pop()
                 path.append(f[1][i][j][1])
-                if len(f[1][i][j]) == 2: #Removing this fork if it's not a triplet fork
+                if len(f[1][i][j])==2:
                     forkprocessor.pop()
                     forkprocessor.pop()
                     forkprocessor.pop()
                 else:
-                    forkprocessor[- 1] = False #Marking it as visited twice
-                if f[1][i][j][1] == 0:
+                    forkprocessor[- 1]=False
+                if f[1][i][j][1]==0:
                     f[0].putpixel((2*j+1,2*i),(0,255,0))
-                    i = i - 1
+                    i=i - 1
                     f[0].putpixel((2*j+1,2*i+1),(0,255,0))
-                elif f[1][i][j][1] == 1:
+                elif f[1][i][j][1]==1:
                     f[0].putpixel((2*j+1,2*i+2),(0,255,0))
-                    i = i + 1
+                    i=i + 1
                     f[0].putpixel((2*j+1,2*i+1),(0,255,0))
-                elif f[1][i][j][1] == 3:
+                elif f[1][i][j][1]==3:
                     f[0].putpixel((2*j+2,2*i+1),(0,255,0))
-                    j = j + 1
+                    j=j + 1
                     f[0].putpixel((2*j+1,2*i+1),(0,255,0))
                 else:
                     f[0].putpixel((2*j,2*i+1),(0,255,0))
-                    j = j - 1
+                    j=j - 1
                     f[0].putpixel((2*j+1,2*i+1),(0,255,0))
-            else: #Visiting fork third time
+            else:
                 path.pop()
                 path.append(f[1][i][j][2])
                 forkprocessor.pop()
                 forkprocessor.pop()
                 forkprocessor.pop()
-                if f[1][i][j][2] == 0:
-                    i = i - 1
-                elif f[1][i][j][2] == 1:
-                    i = i + 1
-                elif f[1][i][j][2] == 3:
-                    j = j + 1
+                if f[1][i][j][2]==0:
+                    i=i - 1
+                elif f[1][i][j][2]==1:
+                    i=i + 1
+                elif f[1][i][j][2]==3:
+                    j=j + 1
                 else:
-                    j = j - 1
+                    j=j - 1
             continue
-        if len(f[1][i][j]) == 1:
-            if f[1][i][j][0] == 0:
+        if len(f[1][i][j])==1:
+            if f[1][i][j][0]==0:
                 f[0].putpixel((2*j+1,2*i),(0,255,0))
-                i = i - 1
+                i=i - 1
                 f[0].putpixel((2*j+1,2*i+1),(0,255,0))
-            elif f[1][i][j][0] == 1:
+            elif f[1][i][j][0]==1:
                 f[0].putpixel((2*j+1,2*i+2),(0,255,0))
-                i = i + 1
+                i=i + 1
                 f[0].putpixel((2*j+1,2*i+1),(0,255,0))
-            elif f[1][i][j][0] == 3:
+            elif f[1][i][j][0]==3:
                 f[0].putpixel((2*j+2,2*i+1),(0,255,0))
-                j = j + 1
+                j=j + 1
                 f[0].putpixel((2*j+1,2*i+1),(0,255,0))
             else:
                 f[0].putpixel((2*j,2*i+1),(0,255,0))
-                j = j - 1
+                j=j - 1
                 f[0].putpixel((2*j+1,2*i+1),(0,255,0))
         else:
-            #Append current coordinates plus current path taken (the first path)
             path.append(i)      
             path.append(j)
             path.append(f[1][i][j][0])
             forkprocessor.append(i)
             forkprocessor.append(j)
             forkprocessor.append(True)
-            if f[1][i][j][0] == 0:
+            if f[1][i][j][0]==0:
                 f[0].putpixel((2*j+1,2*i),(0,255,0))
-                i = i - 1
+                i=i - 1
                 f[0].putpixel((2*j+1,2*i+1),(0,255,0))
-            elif f[1][i][j][0] == 1:
+            elif f[1][i][j][0]==1:
                 f[0].putpixel((2*j+1,2*i+2),(0,255,0))
-                i = i + 1
+                i=i + 1
                 f[0].putpixel((2*j+1,2*i+1),(0,255,0))
-            elif f[1][i][j][0] == 3:
+            elif f[1][i][j][0]==3:
                 f[0].putpixel((2*j+2,2*i+1),(0,255,0))
-                j = j + 1
+                j=j + 1
                 f[0].putpixel((2*j+1,2*i+1),(0,255,0))
             else:
                 f[0].putpixel((2*j,2*i+1),(0,255,0))
-                j = j - 1
+                j=j - 1
                 f[0].putpixel((2*j+1,2*i+1),(0,255,0))
         placeimg()
         win.update()
         win.update_idletasks()
-    for i in range(len(path) - 1, -1, -1):
-        if not ((i + 1) % 3 == 0):
+    for i in range(len(path) - 1,-1,-1):
+        if not ((i + 1) % 3==0):
             path.pop(i)
-    i = 0
-    j = 0
+    i=0
+    j=0
     while not (i==len(f[1])-1 and j==len(f[1])-1):
-        f[0].putpixel((j + j + 1, i + i + 1), (255, 0, 0))
-        if len(f[1][i][j]) == 1:
-            if f[1][i][j][0] == 0:
-                f[0].putpixel((j + j + 1, i + i), (255, 0, 0))
-                i = i - 1
-            elif f[1][i][j][0] == 1:
-                f[0].putpixel((j + j + 1, i + i + 2), (255, 0, 0))
-                i = i + 1
-            elif f[1][i][j][0] == 3:
-                f[0].putpixel((j + j + 2, i + i + 1), (255, 0, 0))
-                j = j + 1
+        f[0].putpixel((j + j + 1,i + i + 1),(255,0,0))
+        if len(f[1][i][j])==1:
+            if f[1][i][j][0]==0:
+                f[0].putpixel((j + j + 1,i + i),(255,0,0))
+                i=i - 1
+            elif f[1][i][j][0]==1:
+                f[0].putpixel((j + j + 1,i + i + 2),(255,0,0))
+                i=i + 1
+            elif f[1][i][j][0]==3:
+                f[0].putpixel((j + j + 2,i + i + 1),(255,0,0))
+                j=j + 1
             else:
-                f[0].putpixel((j + j, i + i + 1), (255, 0, 0))
-                j = j - 1
+                f[0].putpixel((j + j,i + i + 1),(255,0,0))
+                j=j - 1
         else:
-            f[0].putpixel((j + j + 1, i + i + 1), (255, 0, 0))
-            if path[0] == 0:
-                f[0].putpixel((j + j + 1, i + i), (255, 0, 0))
-                i = i - 1
-            elif path[0] == 1:
-                f[0].putpixel((j + j + 1, i + i + 2), (255, 0, 0))
-                i = i + 1
-            elif path[0] == 3:
-                f[0].putpixel((j + j + 2, i + i + 1), (255, 0, 0))
-                j = j + 1
+            f[0].putpixel((j + j + 1,i + i + 1),(255,0,0))
+            if path[0]==0:
+                f[0].putpixel((j + j + 1,i + i),(255,0,0))
+                i=i - 1
+            elif path[0]==1:
+                f[0].putpixel((j + j + 1,i + i + 2),(255,0,0))
+                i=i + 1
+            elif path[0]==3:
+                f[0].putpixel((j + j + 2,i + i + 1),(255,0,0))
+                j=j + 1
             else:
-                f[0].putpixel((j + j, i + i + 1), (255, 0, 0))
-                j = j - 1
+                f[0].putpixel((j + j,i + i + 1),(255,0,0))
+                j=j - 1
             path.pop(0)
     for i in range(1,n*2+1):
         for j in range(1,n*2+1):
-            d = f[0].getpixel((i,j))
+            d=f[0].getpixel((i,j))
             if d==(0,255,0) or d==(50,50,50):
                 f[0].putpixel((i,j),(255,255,255))
     placeimg()
@@ -488,28 +471,28 @@ def realtimesolver():
     win.update_idletasks()
 
 def sendemail():
-    global otpcode, femail
+    global otpcode,femail
     otpcode=str(otp(eemail.get()))
     femail.grid_forget()
     potp()
 
-def nextbox(event, current_entry, next_entry):
-    if event.keysym == "BackSpace":
+def nextbox(event,currententry,nextentry):
+    if event.keysym=="BackSpace":
         return
-    while len(current_entry.get()) > 1:
-        current_entry.delete(1)
-    if len(current_entry.get()) == 1:
-        next_entry.focus_set()
+    while len(currententry.get()) > 1:
+        currententry.delete(1)
+    if len(currententry.get())==1:
+        nextentry.focus_set()
 
-def prevbox(event, current_entry, previous_entry):
-    current_entry.delete(0)
-    if len(current_entry.get()) == 0:
-        previous_entry.focus_set()
+def prevbox(event,currententry,previousentry):
+    currententry.delete(0)
+    if len(currententry.get())==0:
+        previousentry.focus_set()
 
 def checkotp():
     global fotp
     eotp=str(eotp1.get() + eotp2.get() + eotp3.get() + eotp4.get() + eotp5.get() + eotp6.get())
-    if eotp == otpcode:
+    if eotp==otpcode:
         print("OTP Verified")
         fotp.grid_forget()
         ppassword()
@@ -523,8 +506,8 @@ def lockmaze():
     
 def resizeimage(event):
     global h,w,lmazepicl
-    w = event.width
-    h = event.height
+    w=event.width
+    h=event.height
     if w / h > 1:
         w=h
     else:
@@ -535,17 +518,41 @@ def resizeimage(event):
     lmazepic.configure(size=(h,w))
     lmazepicl.configure(image=lmazepic)
 
+def zoomimg():
+    global x,y,f,ezoom
+    try:
+        zoomsize=int(ezoom.get())+1
+    except:
+        zoomsize=31
+    imgw,imgh=f[0].size
+    left=max(0,x - zoomsize)
+    top=max(0,y - zoomsize)
+    right=min(imgw,left + (zoomsize*2))
+    bottom=min(imgh,top + (zoomsize*2))
+    if right==imgw:
+        left=max(0,imgw - (zoomsize*2))
+    if bottom==imgh:
+        top=max(0,imgh - (zoomsize*2))
+    return f[0].crop((left,top,right,bottom))
+
 def placeimg():
     global lmazepic,lmazepicl
-    lmazepic = tk.CTkImage(dark_image=f[0].resize((1080,1080),Image.NONE),size=(h, w))
+    if zoommode.get()=='on':
+        lmazepic=tk.CTkImage(dark_image=zoomimg().resize((1080,1080),Image.NEAREST),size=(h,w))
+    else:
+        lmazepic=tk.CTkImage(dark_image=f[0].resize((1080,1080),Image.NONE),size=(h,w))
     lmazepicl.configure(image=lmazepic)
 
 def solvemaze():
+    global zoommode
     if lock:
         return
     f[0],x=mazessolve(f[1],f[0])
     f.append(f[0].copy())
+    x=zoommode
+    zoommode=tk.StringVar(value="off")
     placeimg()
+    zoommode=x
     lockmaze()
     
 def reset():
@@ -553,96 +560,97 @@ def reset():
     lock=False
     fmazegame.grid_forget()
     win.focus_set()
+    fwinnerbox.grid_forget()
 
 def left(event):
     if lock:
         return
     global x,emazesize
-    x = x - 1
-    r, g, b = f[0].getpixel((x, y))
-    if x == n * 2 - 1 and y == n * 2 - 1:
-        messagebox.showinfo("Congrats!", "Congrats on completing the maze!!")
+    x=x - 1
+    r,g,b=f[0].getpixel((x,y))
+    if x==n * 2 - 1 and y==n * 2 - 1:
+        pwinnerbox()
         lockmaze()
         return
-    if r == 0 and g == 0 and b == 0:
-        x = x + 1
+    if r==0 and g==0 and b==0:
+        x=x + 1
         return
-    if g == 255:
-        f[0].putpixel((x, y), (255, 0, 0))
+    if g==255:
+        f[0].putpixel((x,y),(255,0,0))
     else:
-        f[0].putpixel((x + 1, y), (255, 255, 255))
+        f[0].putpixel((x + 1,y),(255,255,255))
+    c1.play(mk.Sound("move.wav"))
     placeimg()
 
 def right(event):
     if lock:
         return
     global x,emazesize
-    x = x + 1
-    r, g, b = f[0].getpixel((x, y))
-    if x == n * 2 - 1 and y == n * 2 - 1:
-        messagebox.showinfo("Congrats!", "Congrats on completing the maze!!")
+    x=x + 1
+    r,g,b=f[0].getpixel((x,y))
+    if x==n * 2 - 1 and y==n * 2 - 1:
+        pwinnerbox()
         lockmaze()
         return
-    if r == 0 and g == 0 and b == 0:
-        x = x - 1
+    if r==0 and g==0 and b==0:
+        x=x - 1
         return
-    if g == 255:
-        f[0].putpixel((x, y), (255, 0, 0))
+    if g==255:
+        f[0].putpixel((x,y),(255,0,0))
     else:
-        f[0].putpixel((x - 1, y), (255, 255, 255))
+        f[0].putpixel((x - 1,y),(255,255,255))
+    c1.play(mk.Sound("move.wav"))
     placeimg()
 
 def up(event):
     if lock:
         return
     global y,emazesize
-    y = y - 1
-    if x == n * 2 - 1 and y == n * 2 - 1:
-        messagebox.showinfo("Congrats!", "Congrats on completing the maze!!")
+    y=y - 1
+    if x==n * 2 - 1 and y==n * 2 - 1:
+        pwinnerbox()
         lockmaze()
         return
-    r, g, b = f[0].getpixel((x, y))
-    if r == 0 and g == 0 and b == 0:
-        y = y + 1
+    r,g,b=f[0].getpixel((x,y))
+    if r==0 and g==0 and b==0:
+        y=y + 1
         return
-    if g == 255:
-        f[0].putpixel((x, y), (255, 0, 0))
+    if g==255:
+        f[0].putpixel((x,y),(255,0,0))
     else:
-        f[0].putpixel((x, y + 1), (255, 255, 255))
+        f[0].putpixel((x,y + 1),(255,255,255))
+    c1.play(mk.Sound("move.wav"))
     placeimg()
 
 def down(event):
     if lock:
         return
     global y,emazesize
-    y = y + 1
-    if x == n * 2 - 1 and y == n * 2 - 1:
-        messagebox.showinfo("Congrats!", "Congrats on completing the maze!!")
+    y=y + 1
+    if x==n * 2 - 1 and y==n * 2 - 1:
+        pwinnerbox()
         lockmaze()
         return
-    r, g, b = f[0].getpixel((x, y))
-    if r == 0 and g == 0 and b == 0:
-        y = y - 1
+    r,g,b=f[0].getpixel((x,y))
+    if r==0 and g==0 and b==0:
+        y=y - 1
         return
-    if g == 255:
-        f[0].putpixel((x, y), (255, 0, 0))
+    if g==255:
+        f[0].putpixel((x,y),(255,0,0))
     else:
-        f[0].putpixel((x, y - 1), (255, 255, 255))
+        f[0].putpixel((x,y - 1),(255,255,255))
+    c1.play(mk.Sound("move.wav"))
     placeimg()
 
-'''def genm():
-    reset()
-    pmazegame()
-    global f,n,x,y,emazesize
-    x,y=1,1
-    n=int(emazesize.get())
-    f=mazegenerate(n)
-    f.append(f[0].copy())
-    global lmazepic
-    lmazepicl.grid(row=0, column=0, padx=10, pady=10)
-    placeimg()
-    emazesize.configure(state="readonly")
-'''
+def realtimesolver():
+    global zoommode
+    x=zoommode
+    zoommode=tk.StringVar(value="off")
+    if sbsolvealg.get()=='AStar':
+        realtimeastar()
+    else:
+        realtimebruteforce()
+    zoommode=x
 
 def genm():
     reset()
@@ -650,249 +658,454 @@ def genm():
     global f,n,x,y,emazesize
     x,y=1,1
     n=int(emazesize.get())
-    f=prim(n)
+    if sbmazealg.get()=='DFS':
+        f=mazegenerate(n)
+    else:
+        f=prim(n)
     f.append(f[0].copy())
     global lmazepic
-    lmazepicl.grid(row=0, column=0, padx=10, pady=10)
+    lmazepicl.grid(row=0,column=0,padx=10,pady=10)
     placeimg()
     emazesize.configure(state="readonly")
 
-def backgroundmusic():
-    winsound.PlaySound("F:\Grade 11\maze gen\Maze-Game\Locked In.wav", winsound.SND_FILENAME | winsound.SND_LOOP | winsound.SND_ASYNC)
-    
-def stopmusic():
-    winsound.PlaySound(None, winsound.SND_PURGE)
+def music():
+    if musicmode.get()=='on':
+        c0.play(mk.Sound("m23.mp3"),loops=-1)
+    else:
+        c0.stop()
 
-#LOGIN AND SIGNUP
+def sfx():
+    if sfxmode.get()=='on':
+        c1.set_volume(slsfxvol.get())
+    else:
+        c1.set_volume(0.0)
+
+#LOGIN AND SIGNUP PAGES LAYOUTS AND FUNCTIONS
+
 def pname():
     global flogin
     flogin.grid_forget()
-    fname.grid(row=0, column=0, padx=20, pady=20 ,columnspan=2, rowspan=5)
-    llogo = tk.CTkLabel(fname, image=ilogo, text="")
-    llogo.grid(row=0, column=0, padx=10, pady=10, sticky="n",columnspan=2)
-    efirstname.grid(row=2, column=0, padx=20, pady=10,columnspan=2)
-    elastname.grid(row=3, column=0, padx=20, pady=10,columnspan=2)
-    bnext1.grid(row=4, column=0, columnspan=6, padx=20, pady=10,sticky="ew")
+    fname.grid(row=0,column=0,padx=20,pady=20,columnspan=2,rowspan=5)
+    llogo=tk.CTkLabel(fname,image=ilogo,text="")
+    llogo.grid(row=0,column=0,padx=10,pady=10,sticky="n",columnspan=2)
+    efirstname.grid(row=2,column=0,padx=20,pady=10,columnspan=2)
+    elastname.grid(row=3,column=0,padx=20,pady=10,columnspan=2)
+    bnext1.grid(row=4,column=0,columnspan=6,padx=20,pady=10,sticky="ew")
 
 def pemail():
     global fname
     fname.grid_forget()
-    femail.grid(row=0, column=0, padx=20, pady=20)
-    llogo = tk.CTkLabel(femail, image=ilogo, text="")
-    llogo.grid(row=0, column=0, padx=10, pady=10, sticky="n",columnspan=2)
-    lemail.grid(row=1, column=0, padx=20, pady=10, columnspan=2,sticky="ew")
-    eemail.grid(row=2, column=0, padx=20, pady=10, columnspan=2,sticky="ew")
-    bnext2.grid(row=3, column=0, padx=20, pady=10, columnspan=2,sticky="ew")
+    femail.grid(row=0,column=0,padx=20,pady=20)
+    llogo=tk.CTkLabel(femail,image=ilogo,text="")
+    llogo.grid(row=0,column=0,padx=10,pady=10,sticky="n",columnspan=2)
+    lemail.grid(row=1,column=0,padx=20,pady=10,columnspan=2,sticky="ew")
+    eemail.grid(row=2,column=0,padx=20,pady=10,columnspan=2,sticky="ew")
+    bnext2.grid(row=3,column=0,padx=20,pady=10,columnspan=2,sticky="ew")
 
 def potp():
     global otpcode,femail
     femail.grid_forget()
-    fotp.grid(row=0, column=0, padx=20, pady=20 ,columnspan=10, rowspan=6)
-    llogo = tk.CTkLabel(fotp, image=ilogo, text="")
-    llogo.grid(row=0, column=0, padx=10, pady=10, sticky="n",columnspan=10)
-    eotp1.grid(row=1, column=1, padx=10, pady=10,sticky="ew")
-    eotp2.grid(row=1, column=2, padx=10, pady=10,sticky="ew")
-    eotp3.grid(row=1, column=3, padx=10, pady=10,sticky="ew")
-    eotp4.grid(row=1, column=4, padx=10, pady=10,sticky="ew")
-    eotp5.grid(row=1, column=5, padx=10, pady=10,sticky="ew")
-    eotp6.grid(row=1, column=6, padx=10, pady=10,sticky="ew")
-    bnext3.grid(row=2, column=1, columnspan=6, padx=10, pady=10,sticky="ew")
+    fotp.grid(row=0,column=0,padx=20,pady=20,columnspan=10,rowspan=6)
+    llogo=tk.CTkLabel(fotp,image=ilogo,text="")
+    llogo.grid(row=0,column=0,padx=10,pady=10,sticky="n",columnspan=10)
+    eotp1.grid(row=1,column=1,padx=10,pady=10,sticky="ew")
+    eotp2.grid(row=1,column=2,padx=10,pady=10,sticky="ew")
+    eotp3.grid(row=1,column=3,padx=10,pady=10,sticky="ew")
+    eotp4.grid(row=1,column=4,padx=10,pady=10,sticky="ew")
+    eotp5.grid(row=1,column=5,padx=10,pady=10,sticky="ew")
+    eotp6.grid(row=1,column=6,padx=10,pady=10,sticky="ew")
+    bback3.grid(row=2,column=1,columnspan=3,padx=10,pady=10,sticky="ew")
+    bnext3.grid(row=2,column=4,columnspan=3,padx=10,pady=10,sticky="ew")
 
 def ppassword():
     global fotp
     fotp.grid_forget()
-    fpassword.grid(row=0, column=0, padx=20, pady=20)
-    llogo = tk.CTkLabel(fpassword, image=ilogo, text="")
-    llogo.grid(row=0, column=0, padx=10, pady=10, sticky="n",columnspan=10)
-    ecreatepassword.grid(row=2, column=0, padx=20, pady=10,columnspan=2)
-    econfirmpassword.grid(row=3, column=0, padx=20, pady=10,columnspan=2)
-    bnext4.grid(row=4, column=0, columnspan=6, padx=10, pady=10,sticky="ew")
+    fpassword.grid(row=0,column=0,padx=20,pady=20)
+    llogo=tk.CTkLabel(fpassword,image=ilogo,text="")
+    llogo.grid(row=0,column=0,padx=10,pady=10,sticky="n",columnspan=10)
+    ecreatepassword.grid(row=2,column=0,padx=20,pady=10,columnspan=2)
+    econfirmpassword.grid(row=3,column=0,padx=20,pady=10,columnspan=2)
+    bnext4.grid(row=11,column=0,columnspan=6,padx=10,pady=10,sticky="ew")
+
+def dpassword():
+    password=ecreatepassword.get()
+    confirmpassword=econfirmpassword.get()
+    cont=True
+    if password !=confirmpassword:
+        lmatch.grid(row=4,column=0,padx=10,pady=0,columnspan=6,sticky="w")
+        cont=False
+    else:
+        try:
+            lmatch.grid_forget()
+        except:
+            pass
+    if len(password) <8:
+        lminchar.grid(row=5,column=0,padx=10,pady=0,columnspan=6,sticky="w")
+        cont=False
+    else:
+        try:
+            lminchar.grid_forget()
+        except:
+            pass
+    if any(i.isspace() for i in password):
+        lspace.grid(row=6,column=0,padx=10,pady=0,columnspan=6,sticky="w")
+        cont=False
+    else:
+        try:
+            lspace.grid_forget()
+        except:
+            pass    
+    if not any(i.islower() for i in password):
+        llowercase.grid(row=7,column=0,padx=10,pady=0,columnspan=6,sticky="w")
+        cont=False
+    else:
+        try:
+            llowercase.grid_forget()
+        except:
+            pass
+    if not any(i.isupper() for i in password):
+        luppercase.grid(row=8,column=0,padx=10,pady=0,columnspan=6,sticky="w")
+        cont=False
+    else:
+        try:
+            luppercase.grid_forget()
+        except:
+            pass
+    if not any(i.isdigit() for i in password):
+        lnumber.grid(row=9,column=0,padx=10,pady=0,columnspan=6,sticky="w")
+        cont=False
+    else:
+        try:
+            lnumber.grid_forget()
+        except:
+            pass
+    if password.isalnum():
+        lspecialchar.grid(row=10,column=0,padx=10,pady=0,columnspan=6,sticky="w") 
+        cont=False
+    else:
+        try:
+            lspecialchar.grid_forget()
+        except:
+            pass
+    if cont:
+        pgamertag()
 
 def pgamertag():
     global fpassword
     fpassword.grid_forget()
-    fgamertag.grid(row=0, column=0, padx=20, pady=20)
-    llogo = tk.CTkLabel(fgamertag, image=ilogo, text="")
-    llogo.grid(row=0, column=0, padx=10, pady=10, sticky="n",columnspan=10)
-    ecreateusername.grid(row=1, column=0, padx=20, pady=10,columnspan=2)
-    bnext5.grid(row=2, column=0, columnspan=6, padx=10, pady=10,sticky="ew")
+    fgamertag.grid(row=0,column=0,padx=20,pady=20)
+    llogo=tk.CTkLabel(fgamertag,image=ilogo,text="")
+    llogo.grid(row=0,column=0,padx=10,pady=10,sticky="n",columnspan=10)
+    ecreateusername.grid(row=1,column=0,padx=20,pady=10,columnspan=2)
+    bnext5.grid(row=2,column=0,columnspan=6,padx=10,pady=10,sticky="ew")
 
 def dsignup():
+    global efirstname,elastname,ecreatepassword,ecreateusername,eemail
     username=ecreateusername.get()
     password=ecreatepassword.get()
     firstname=efirstname.get()
     lastname=elastname.get()
     email=eemail.get()
-    signup(username,password,firstname,lastname,email)
-    global fgamertag
-    fgamertag.grid_forget()
-    pmazecontrols()
+    if signup(username,password,firstname,lastname,email):
+        global fgamertag
+        fgamertag.grid_forget()
+        pmazecontrols()
+    else:
+        messagebox("Username already exists. Please choose a different username.")
 
 def dlogin():
     username=eusername.get()
     password=epassword.get()
+    
     if login(username,password):
         global flogin
         flogin.grid_forget() 
-        messagebox.showinfo("Logged In", "Successfully logged in")
+        messagebox("Successfully logged in")
         pmazecontrols()
     else:
-        messagebox.showerror("Error", "Invalid username or password")
+        messagebox("Invalid username or password")
 
 def plogin():
-    llogo = tk.CTkLabel(flogin, image=ilogo, text="")
-    flogin.grid(row=0, column=0, padx=20, pady=20 ,columnspan=2, rowspan=5)
-    llogo.grid(row=0, column=0, padx=10, pady=10, sticky="n",columnspan=2)
-    llogintxt.grid(row=1, column=0, padx=20, pady=10, columnspan=2,sticky="n")
-    eusername.grid(row=2, column=0, padx=20, pady=10,columnspan=2)
-    epassword.grid(row=3, column=0, padx=20, pady=10,columnspan=2)
-    blogin.grid(row=4, column=0, padx=20, pady=10,columnspan=2, sticky="ew")
-    bsignup.grid(row=5, column=0, padx=7, pady=3,columnspan=2, sticky="w")
+    llogo=tk.CTkLabel(flogin,image=ilogo,text="")
+    flogin.grid(row=0,column=0,padx=20,pady=20,columnspan=2,rowspan=5)
+    llogo.grid(row=0,column=0,padx=10,pady=10,sticky="n",columnspan=2)
+    llogintxt.grid(row=1,column=0,padx=20,pady=10,columnspan=2,sticky="n")
+    eusername.grid(row=2,column=0,padx=20,pady=10,columnspan=2)
+    epassword.grid(row=3,column=0,padx=20,pady=10,columnspan=2)
+    blogin.grid(row=4,column=0,padx=20,pady=10,columnspan=2,sticky="ew")
+    bsignup.grid(row=5,column=0,padx=7,pady=3,columnspan=2,sticky="w")
+
+def logout():
+    global fmazecontrols,fsettings
+    fmazecontrols.grid_forget()
+    fsettings.grid_forget()
+    plogin()
+    try:
+        reset()
+    except:
+        pass
+
+#OTHER PAGES LAYOUTS
 
 def pmazegame():
-    fmazegame.grid(row=0, column=0, padx=20, pady=20 ,columnspan=10, rowspan=10,sticky="nsew")
-    fmazegame.grid_columnconfigure(0, weight=1)
+    fmazegame.grid(row=0,column=0,padx=20,pady=20,columnspan=10,rowspan=10,sticky="nsew")
+    fmazegame.grid_columnconfigure(0,weight=1)
+    fmazegame.lift()
 
 def pmazecontrols():
+    fmazecontrols.grid(row=0,column=11,padx=20,pady=20,columnspan=10,rowspan=10,sticky="nsew")
+    lsettings.grid(row=0,column=20,padx=20,pady=20,columnspan=1,rowspan=1,sticky="ne")
+    lcontrolstxt.grid(row=0,column=11,padx=20,pady=10,columnspan=10,sticky="w")
+    lgentxt.grid(row=1,column=11,padx=20,pady=10,columnspan=6,sticky="w")
+    emazesize.grid(row=2,column=11,padx=20,pady=10,columnspan=10,sticky="ew")
+    bgenmaze.grid(row=3,column=11,padx=20,pady=10,columnspan=10,sticky="ew")
+    lalgtxt.grid(row=4,column=11,padx=20,pady=10,columnspan=6,sticky="w")
+    bsolamaze.grid(row=5,column=11,padx=20,pady=10,columnspan=5,sticky="w")
+    bsolsmaze.grid(row=5,column=16,padx=20,pady=10,columnspan=5,sticky="e")
+    lsavefiletxt.grid(row=6,column=11,padx=20,pady=10,columnspan=6,sticky="w")
+    bfilesave.grid(row=7,column=11,padx=20,pady=10,columnspan=5,sticky="w")
+    bfileload.grid(row=7,column=16,padx=20,pady=10,columnspan=5,sticky="e")
+    bsaveimgs.grid(row=9,column=11,padx=20,pady=10,columnspan=10,sticky="ew")
+    bsaveimguns.grid(row=10,column=11,padx=20,pady=10,columnspan=10,sticky="ew")
+    fsettings.grid(row=0,column=11,padx=20,pady=(100,20),columnspan=10,rowspan=10,sticky="ne")
+    psettings()
+    fmazecontrols.lift()
+    pwinnerboxload()
 
-    fmazecontrols.grid(row=0, column=11, padx=20, pady=20 ,columnspan=10, rowspan=10,sticky="nsew")
-    lsettings = tk.CTkLabel(fmazecontrols, image=isettings, text="")
-    lsettings.grid(row=0, column=20, padx=20, pady=20 ,columnspan=1, rowspan=1,sticky="ne")
-    lcontrolstxt.grid(row=0, column=11, padx=20, pady=10,columnspan=10,sticky="w")
-    lgentxt.grid(row=1, column=11, padx=20, pady=10,columnspan=6,sticky="w")
-    emazesize.grid(row=2, column=11, padx=20, pady=10,columnspan=10,sticky="ew")
-    bgenmaze.grid(row=3, column=11, padx=20, pady=10,columnspan=10,sticky="ew")
-    lalgtxt.grid(row=4, column=11, padx=20, pady=10,columnspan=6,sticky="w")
-    bsolamaze.grid(row=5, column=11, padx=20, pady=10,columnspan=5,sticky="w")
-    bsolsmaze.grid(row=5, column=16, padx=20, pady=10,columnspan=5,sticky="e")
-    lsavefiletxt.grid(row=6, column=11, padx=20, pady=10,columnspan=6,sticky="w")
-    bfilesave.grid(row=7, column=11, padx=20, pady=10,columnspan=5,sticky="w")
-    bfileload.grid(row=7, column=16, padx=20, pady=10,columnspan=5,sticky="e")
-    limgtypetxt.grid(row=8, column=11, padx=20, pady=10,columnspan=5,sticky="w")
-    sbimgtype.grid(row=8, column=16, padx=20, pady=10,columnspan=5,sticky="e")
-    bsaveimgs.grid(row=9, column=11, padx=20, pady=10,columnspan=10,sticky="ew")
-    bsaveimguns.grid(row=10, column=11, padx=20, pady=10,columnspan=10,sticky="ew")
+def psettings():
+    limgtypetxt.grid(row=0,column=11,padx=20,pady=0,columnspan=5,sticky="w")
+    sbimgtype.grid(row=0,column=16,padx=20,pady=10,columnspan=5,sticky="w")
+    lmazealg.grid(row=1,column=11,padx=20,pady=0,columnspan=5,sticky="w")
+    sbmazealg.grid(row=1,column=16,padx=20,pady=10,columnspan=5,sticky="w")
+    lsolvealg.grid(row=2,column=11,padx=20,pady=0,columnspan=5,sticky="w")
+    sbsolvealg.grid(row=2,column=16,padx=20,pady=10,columnspan=5,sticky="w")
+    lsavefiletype.grid(row=3,column=11,padx=20,pady=0,columnspan=5,sticky="w")
+    sbsavefileloc.grid(row=3,column=16,padx=20,pady=10,columnspan=5,sticky="w")
+    smovemode.grid(row=4,column=11,padx=20,pady=10,columnspan=5,sticky="w")
+    smusic.grid(row=5,column=11,padx=20,pady=10,columnspan=5,sticky="w")
+    slmusvol.grid(row=5,column=16,padx=20,pady=10,columnspan=5,sticky="w")
+    ssfx.grid(row=6,column=11,padx=20,pady=10,columnspan=5,sticky="w")
+    slsfxvol.grid(row=6,column=16,padx=20,pady=10,columnspan=5,sticky="w")
+    szoom.grid(row=7,column=11,padx=20,pady=10,columnspan=5,sticky="w")
+    ezoom.grid(row=7,column=16,padx=20,pady=10,columnspan=5,sticky="w")
+    blogout.grid(row=8,column=11,padx=20,pady=10,columnspan=10,sticky="ew")
+
+def pwinnerboxload():
+    lwin.grid(row=0,column=0,padx=20,pady=20)
+    ltrophy.grid(row=1,column=0,padx=0,pady=20)
+    trophyupdate(0)
+
+def pwinnerbox():
+    fwinnerbox.grid(row=0,column=0,padx=20,pady=20)
+    fwinnerbox.lift()
+    c1.play(mk.Sound("victory.wav"))
+
+def trophyupdate(frame):
+    ltrophy.configure(image=trophyframes[frame])
+    nextindex=(frame + 1) % len(trophyframes)
+    win.after(duration,trophyupdate,nextindex)
+
+#MESSAGE BOX
+   
+def messagebox(text):
+    wait=tk.IntVar(value=0)
+    win.grid_rowconfigure(0,weight=1)
+    win.grid_columnconfigure(0,weight=1)
+    fmsgbox=tk.CTkFrame(master=win,corner_radius=20,bg_color="#000001",border_color="#00AEFF",border_width=1.75)
+    c1.play(mk.Sound("message.wav"))
+    fmsgbox.grid(row=0,column=0,padx=20,pady=20,sticky="")
+    pywinstyles.set_opacity(fmsgbox,color="#000001")
+    lmsg=tk.CTkLabel(fmsgbox,text=text,font=tk.CTkFont(size=15,weight="bold"))
+    lmsg.grid(row=0,column=0,padx=40,pady=(40,20))
+    def ok():
+        fmsgbox.grid_forget()
+        wait.set(1)
+    bmsgok=tk.CTkButton(fmsgbox,corner_radius=30,text="OK",command=ok)
+    bmsgok.grid(row=1,column=0,padx=20,pady=(0,20))
+    win.wait_variable(wait)
 
 #MAIN WINDOW SETUP
 
 lock,n,x,y,f,h,w=False,0,1,1,[],1,1
-
-win = tk.CTk()
+mk.pre_init(44100, -16, 2, 2048)
+mk.init()
+mk.set_num_channels(2)
+c0=mk.Channel(0)
+c1=mk.Channel(1)
+win=tk.CTk()
 win.title("Maze Game")
 win.geometry(str(win.winfo_screenwidth()) + "x" + str(win.winfo_screenheight()))
 tk.set_window_scaling(0.6)
 tk.set_appearance_mode("dark")
-tk.set_default_color_theme("blue")
-win.grid_columnconfigure(0, weight=1)
-win.grid_rowconfigure(0, weight=1)
+tk.set_default_color_theme("Blue.json") 
+win.grid_columnconfigure(0,weight=1)
+win.grid_rowconfigure(0,weight=1)
 
+#LOGIN PAGE SETUP
 
-flogin = tk.CTkFrame(master=win, corner_radius=20)
-llogintxt = tk.CTkLabel(flogin, text="Log in OR Sign Up", font=tk.CTkFont(size=20, weight="bold"))
-eusername = tk.CTkEntry(flogin, placeholder_text="Enter Username",width=325,corner_radius=30)
-epassword = tk.CTkEntry(flogin, placeholder_text="Enter password",width=325,corner_radius=30, show='*')
-bsignup = tk.CTkButton(flogin, corner_radius=30,fg_color='transparent', hover=False, text="don't have an account?", text_color="#67C1FD", command=pname)
-blogin = tk.CTkButton(flogin, corner_radius=30, text="login", command=dlogin)
+flogin=tk.CTkFrame(master=win,corner_radius=20)
+llogintxt=tk.CTkLabel(flogin,text="Log in OR Sign Up",font=tk.CTkFont(size=20,weight="bold"))
+eusername=tk.CTkEntry(flogin,placeholder_text="Enter Username",width=325,corner_radius=30)
+epassword=tk.CTkEntry(flogin,placeholder_text="Enter password",width=325,corner_radius=30,show='*')
+bsignup=tk.CTkButton(flogin,corner_radius=30,fg_color='transparent',hover=False,text="don't have an account?",text_color="#67C1FD",command=pname)
+blogin=tk.CTkButton(flogin,corner_radius=30,text="login",command=dlogin)
 try:
-    ilogo = tk.CTkImage(dark_image=Image.open("F:\Grade 11\maze gen\Maze-Game\im2.png"),size=(300,300))
+    ilogo=tk.CTkImage(dark_image=Image.open("im2.png"),size=(300,300))
 
 except:
-    ilogo = tk.CTkImage(dark_image=Image.new("RGB",(300,300),(0,0,0)),size=(300,300))
+    ilogo=tk.CTkImage(dark_image=Image.new("RGB",(300,300),(0,0,0)),size=(300,300))
 
+#MAZE WINDOW SETUP
 
+fmazegame=tk.CTkFrame(master=win,corner_radius=20)
+lmazepic=None
+lmazepicl=tk.CTkLabel(fmazegame,image=lmazepic,text="")
+lmazegametxt=tk.CTkLabel(fmazegame,text="Maze Game",font=tk.CTkFont(size=30,weight="bold"))
+progressbar=tk.CTkProgressBar(fmazegame,orientation="horizontal",mode="indeterminate")
 
-fmazegame = tk.CTkFrame(master=win, corner_radius=20)
-lmazepic = None
-lmazepicl = tk.CTkLabel(fmazegame, image=lmazepic, text="")
-lmazegametxt = tk.CTkLabel(fmazegame, text="Maze Game", font=tk.CTkFont(size=30, weight="bold"))
-progressbar = tk.CTkProgressBar(fmazegame,orientation="horizontal",mode="indeterminate")
+#MAZE CONTROLS SETUP
 
+fmazecontrols=tk.CTkFrame(master=win,corner_radius=20,width=350)
+lcontrolstxt=tk.CTkLabel(fmazecontrols,text="Controls:",font=tk.CTkFont(size=30,weight="bold"))
+lgentxt=tk.CTkLabel(fmazecontrols,text="Configure and Generate:",font=tk.CTkFont(size=20,weight="bold"))
+emazesize=tk.CTkEntry(fmazecontrols,placeholder_text="Enter Maze Size(1-x)",width=325,corner_radius=30)
+bgenmaze=tk.CTkButton(fmazecontrols,corner_radius=30,text="generate maze",command=genm)
+lalgtxt=tk.CTkLabel(fmazecontrols,text="Algoritmic solving:",font=tk.CTkFont(size=20,weight="bold"))
+bsolamaze=tk.CTkButton(fmazecontrols,corner_radius=30,text="Solve fast",command=solvemaze,width=155)
+bsolsmaze=tk.CTkButton(fmazecontrols,corner_radius=30,text="see the program",command=realtimesolver,width=155)
+lsavefiletxt=tk.CTkLabel(fmazecontrols,text="Saving and Exporting:",font=tk.CTkFont(size=20,weight="bold"))
+bfilesave=tk.CTkButton(fmazecontrols,corner_radius=30,text="Save File",command=lambda: progressbar.start(),width=155)
+bfileload=tk.CTkButton(fmazecontrols,corner_radius=30,text="Load File",command=lambda: progressbar.start(),width=155)
+bsaveimgs=tk.CTkButton(fmazecontrols,corner_radius=30,text="export unsoved maze to image",command=lambda: f[2].resize((1080,1080),Image.NONE).save(filedialog.asksaveasfilename(initialdir="/",title="Save File As",initialfile="output",defaultextension=sbimgtype.get())))
+bsaveimguns=tk.CTkButton(fmazecontrols,corner_radius=30,text="export solved maze to image",command=lambda: f[3].resize((1080,1080),Image.NONE).save(filedialog.asksaveasfilename(initialdir="/",title="Save File As",initialfile="output",defaultextension=sbimgtype.get())))
+win.bind("<Left>",left)
+win.bind("<Right>",right)
+win.bind("<Up>",up)
+win.bind("<Down>",down)
 
-fmazecontrols=tk.CTkFrame(master=win, corner_radius=20,width=350)
-lcontrolstxt = tk.CTkLabel(fmazecontrols, text="Controls:", font=tk.CTkFont(size=30, weight="bold"))
-lgentxt = tk.CTkLabel(fmazecontrols, text="Configure and Generate:", font=tk.CTkFont(size=20, weight="bold"))
-emazesize = tk.CTkEntry(fmazecontrols, placeholder_text="Enter Maze Size(1-x)",width=325,corner_radius=30)
-bgenmaze = tk.CTkButton(fmazecontrols, corner_radius=30, text="generate maze", command=genm)
-lalgtxt = tk.CTkLabel(fmazecontrols, text="Algoritmic solving:", font=tk.CTkFont(size=20, weight="bold"))
-bsolamaze = tk.CTkButton(fmazecontrols, corner_radius=30, text="Solve fast", command=solvemaze,width=155)
-bsolsmaze = tk.CTkButton(fmazecontrols, corner_radius=30, text="see the program", command=realtimesolver2,width=155)
-lsavefiletxt = tk.CTkLabel(fmazecontrols, text="Saving and Exporting:", font=tk.CTkFont(size=20, weight="bold"))
-bfilesave = tk.CTkButton(fmazecontrols, corner_radius=30, text="Save File", command=lambda: progressbar.start(),width=155)
-bfileload = tk.CTkButton(fmazecontrols, corner_radius=30, text="Load File", command=lambda: progressbar.start(),width=155)
-limgtypetxt = tk.CTkLabel(fmazecontrols, text="Select Image Type:", font=tk.CTkFont(size=15, weight="bold"))
-sbimgtype = tk.CTkSegmentedButton(fmazecontrols, values=[".jpg", ".png", ".webp"],corner_radius=30)
+#SETTINGS PAGE SETUP
+
+try:
+    isettings=tk.CTkImage(dark_image=Image.open("settings.png"),size=(50,50))
+except:
+    isettings=tk.CTkImage(dark_image=Image.new("RGB",(50,50),(0,0,0)),size=(50,50))
+fsettings=tk.CTkFrame(master=win,corner_radius=20,width=300,bg_color="#000001",fg_color="#363636")
+pywinstyles.set_opacity(fsettings,color="#000001")
+lsettings=tk.CTkLabel(fmazecontrols,image=isettings,text="")
+def focussettings(event):
+    fsettings.lift()
+    fsettings.focus_set()
+lsettings.bind("<Enter>",lambda event: focussettings(event))
+def lift():
+    fmazecontrols.lift()
+def checkhover():
+    mouse_x=fsettings.winfo_pointerx() - fsettings.winfo_rootx()
+    mouse_y=fsettings.winfo_pointery() - fsettings.winfo_rooty()
+    return (0 <=mouse_x <=fsettings.winfo_width() and 0 <=mouse_y <=fsettings.winfo_height())
+def leftsettings(event):
+    win.after(100,verify)
+def verify():
+    if not checkhover():
+        lift()
+lsettings.bind("<Leave>",leftsettings)
+fsettings.bind("<Leave>",leftsettings)
+movemode=tk.StringVar(value="off")
+musicmode=tk.StringVar(value="on")
+sfxmode=tk.StringVar(value="on")
+zoommode=tk.StringVar(value="on")
+limgtypetxt=tk.CTkLabel(fsettings,text="Select Image Type:",font=tk.CTkFont(size=12))
+sbimgtype=tk.CTkSegmentedButton(fsettings,values=[".jpg",".png",".webp"],corner_radius=30)
 sbimgtype.set(".png")
-bsaveimgs = tk.CTkButton(fmazecontrols, corner_radius=30, text="export unsoved maze to image", command=lambda: f[2].resize((1080,1080), Image.NONE).save(filedialog.asksaveasfilename(initialdir="/",title="Save File As",initialfile="output",defaultextension=sbimgtype.get())))
-bsaveimguns = tk.CTkButton(fmazecontrols, corner_radius=30, text="export solved maze to image", command=lambda: f[3].resize((1080,1080), Image.NONE).save(filedialog.asksaveasfilename(initialdir="/",title="Save File As",initialfile="output",defaultextension=sbimgtype.get())))
-win.bind("<Left>", left)
-win.bind("<Right>", right)
-win.bind("<Up>", up)
-win.bind("<Down>", down)
+lmazealg=tk.CTkLabel(fsettings,text="Select Maze Generator:",font=tk.CTkFont(size=12))
+sbmazealg=tk.CTkSegmentedButton(fsettings,values=["Primz","DFS"],corner_radius=30)
+sbmazealg.set("Primz")
+lsolvealg=tk.CTkLabel(fsettings,text="Select Maze Solver:",font=tk.CTkFont(size=12))
+sbsolvealg=tk.CTkSegmentedButton(fsettings,values=["AStar","Brute Force"],corner_radius=30)
+sbsolvealg.set("AStar")
+lsavefiletype=tk.CTkLabel(fsettings,text="Select Save File Location:",font=tk.CTkFont(size=12))
+sbsavefileloc=tk.CTkSegmentedButton(fsettings,values=["Your PC","Cloud"],corner_radius=30)
+sbsavefileloc.set("Cloud")
+smovemode=tk.CTkSwitch(fsettings,text="Move to next node",variable=movemode,onvalue="on",offvalue="off")
+smusic=tk.CTkSwitch(fsettings,text="background music",variable=musicmode,command=music,onvalue="on",offvalue="off")
+ssfx=tk.CTkSwitch(fsettings,text="sound effects",variable=sfxmode,command=sfx,onvalue="on",offvalue="off")
+slmusvol=tk.CTkSlider(fsettings,from_=0,to=1,width=165,command=c0.set_volume,number_of_steps=100)
+slmusvol.set(1)
+slsfxvol=tk.CTkSlider(fsettings,from_=0,to=1,width=165,command=c1.set_volume,number_of_steps=100)
+slsfxvol.set(1)
+szoom=tk.CTkSwitch(fsettings,text="Zoom",variable=zoommode,onvalue="on",offvalue="off")
+ezoom=tk.CTkEntry(fsettings,placeholder_text="Zoom Size",width=90,corner_radius=30)
+blogout=tk.CTkButton(fsettings,corner_radius=30,text="Logout",command=logout)
 
+#WINNER BOX SETUP
 
-fmazegame.bind("<Configure>", resizeimage)
-bsignup.bind("<Enter>", lambda event: bsignup.cget("font").configure(underline=True))
-bsignup.bind("<Leave>", lambda event: bsignup.cget("font").configure(underline=False))
+fwinnerbox=tk.CTkFrame(master=win,corner_radius=20,bg_color="#000001",fg_color="#414141")
+pywinstyles.set_opacity(fwinnerbox,color="#000001")
+lwin=tk.CTkLabel(fwinnerbox,text="¡ ¡ Congratulations on Completing the Maze ! !",font=tk.CTkFont(size=15,weight="bold"))
+itrophy=Image.open("trophy.gif")
+trophyframes=[]
+for i in range(itrophy.n_frames):
+    itrophy.seek(i)
+    trophyframes.append(tk.CTkImage(light_image=itrophy.copy(),size=(250,250)))
+duration=itrophy.info.get("duration",100)
+ltrophy=tk.CTkLabel(fwinnerbox,text="",image=trophyframes[0])
 
+#SIGNUP PAGES SETUP
 
-fname = tk.CTkFrame(master=win, corner_radius=20)
-efirstname = tk.CTkEntry(fname, placeholder_text="Enter your first name",width=325,corner_radius=30)
-elastname = tk.CTkEntry(fname, placeholder_text="Enter your last name",width=325,corner_radius=30)
-bnext1= tk.CTkButton(master=fname, text="Next", corner_radius=20,command=pemail)
+fmazegame.bind("<Configure>",resizeimage)
+bsignup.bind("<Enter>",lambda event: bsignup.cget("font").configure(underline=True))
+bsignup.bind("<Leave>",lambda event: bsignup.cget("font").configure(underline=False))
 
-femail = tk.CTkFrame(master=win, corner_radius=20)
-lemail = tk.CTkLabel(master=femail, text="Enter your email adress", font=tk.CTkFont(size=20, weight="bold"))
-eemail= tk.CTkEntry(master=femail, placeholder_text="Enter your email", width=325, border_width=2, corner_radius=30)
-bnext2= tk.CTkButton(master=femail, text="Next", corner_radius=20, command=sendemail)
+fname=tk.CTkFrame(master=win,corner_radius=20)
+efirstname=tk.CTkEntry(fname,placeholder_text="Enter your first name",width=325,corner_radius=30)
+elastname=tk.CTkEntry(fname,placeholder_text="Enter your last name",width=325,corner_radius=30)
+bnext1=tk.CTkButton(master=fname,text="Next",corner_radius=20,command=lambda: pemail() if efirstname.get() !="" and elastname.get() !="" else messagebox("Please fill in all fields"))
 
-fotp = tk.CTkFrame(master=win, corner_radius=20)
-eotp1= tk.CTkEntry(master=fotp, placeholder_text="x", width=40, height=60, border_width=2, corner_radius=10, justify='center',font=tk.CTkFont(size=24))
-eotp2= tk.CTkEntry(master=fotp, placeholder_text="x", width=40, height=60, border_width=2, corner_radius=10, justify='center',font=tk.CTkFont(size=24))
-eotp3= tk.CTkEntry(master=fotp, placeholder_text="x", width=40, height=60, border_width=2, corner_radius=10, justify='center',font=tk.CTkFont(size=24))
-eotp4= tk.CTkEntry(master=fotp, placeholder_text="x", width=40, height=60, border_width=2, corner_radius=10, justify='center',font=tk.CTkFont(size=24))
-eotp5= tk.CTkEntry(master=fotp, placeholder_text="x", width=40, height=60, border_width=2, corner_radius=10, justify='center',font=tk.CTkFont(size=24))
-eotp6= tk.CTkEntry(master=fotp, placeholder_text="x", width=40, height=60, border_width=2, corner_radius=10, justify='center',font=tk.CTkFont(size=24))
-bnext3= tk.CTkButton(master=fotp, text="Next", corner_radius=20,command=checkotp)
+femail=tk.CTkFrame(master=win,corner_radius=20)
+lemail=tk.CTkLabel(master=femail,text="Enter your email adress",font=tk.CTkFont(size=20,weight="bold"))
+eemail=tk.CTkEntry(master=femail,placeholder_text="Enter your email",width=325,border_width=2,corner_radius=30)
+bnext2=tk.CTkButton(master=femail,text="Next",corner_radius=20,command=lambda: sendemail() if eemail.get() !="" and "@" in eemail.get() else messagebox("Please enter your email adress"))
 
-eotp1.bind("<KeyRelease>", lambda event: nextbox(event, eotp1, eotp2))
-eotp2.bind("<KeyRelease>", lambda event: nextbox(event, eotp2, eotp3))
-eotp3.bind("<KeyRelease>", lambda event: nextbox(event, eotp3, eotp4))
-eotp4.bind("<KeyRelease>", lambda event: nextbox(event, eotp4, eotp5))
-eotp5.bind("<KeyRelease>", lambda event: nextbox(event, eotp5, eotp6))
-eotp2.bind("<BackSpace>", lambda event: prevbox(event, eotp2, eotp1))
-eotp3.bind("<BackSpace>", lambda event: prevbox(event, eotp3, eotp2))
-eotp4.bind("<BackSpace>", lambda event: prevbox(event, eotp4, eotp3))
-eotp5.bind("<BackSpace>", lambda event: prevbox(event, eotp5, eotp4))
-eotp6.bind("<BackSpace>", lambda event: prevbox(event, eotp6, eotp5))
+fotp=tk.CTkFrame(master=win,corner_radius=20)
+eotp1=tk.CTkEntry(master=fotp,placeholder_text="x",width=40,height=60,border_width=2,corner_radius=10,justify='center',font=tk.CTkFont(size=24))
+eotp2=tk.CTkEntry(master=fotp,placeholder_text="x",width=40,height=60,border_width=2,corner_radius=10,justify='center',font=tk.CTkFont(size=24))
+eotp3=tk.CTkEntry(master=fotp,placeholder_text="x",width=40,height=60,border_width=2,corner_radius=10,justify='center',font=tk.CTkFont(size=24))
+eotp4=tk.CTkEntry(master=fotp,placeholder_text="x",width=40,height=60,border_width=2,corner_radius=10,justify='center',font=tk.CTkFont(size=24))
+eotp5=tk.CTkEntry(master=fotp,placeholder_text="x",width=40,height=60,border_width=2,corner_radius=10,justify='center',font=tk.CTkFont(size=24))
+eotp6=tk.CTkEntry(master=fotp,placeholder_text="x",width=40,height=60,border_width=2,corner_radius=10,justify='center',font=tk.CTkFont(size=24))
+bnext3=tk.CTkButton(master=fotp,text="Next",corner_radius=20,command=checkotp)
+bback3=tk.CTkButton(master=fotp,text="Back",corner_radius=20,command=lambda: (pemail(),fotp.grid_forget()))
 
-fpassword = tk.CTkFrame(master=win, corner_radius=20)
-ecreatepassword = tk.CTkEntry(fpassword, placeholder_text="Enter password",width=325,corner_radius=30, show='*')
-econfirmpassword = tk.CTkEntry(fpassword, placeholder_text="Enter password again",width=325,corner_radius=30, show='*')
-bnext4= tk.CTkButton(master=fpassword, text="Next", corner_radius=20,command=pgamertag)
+eotp1.bind("<KeyRelease>",lambda event: nextbox(event,eotp1,eotp2))
+eotp2.bind("<KeyRelease>",lambda event: nextbox(event,eotp2,eotp3))
+eotp3.bind("<KeyRelease>",lambda event: nextbox(event,eotp3,eotp4))
+eotp4.bind("<KeyRelease>",lambda event: nextbox(event,eotp4,eotp5))
+eotp5.bind("<KeyRelease>",lambda event: nextbox(event,eotp5,eotp6))
+eotp2.bind("<BackSpace>",lambda event: prevbox(event,eotp2,eotp1))
+eotp3.bind("<BackSpace>",lambda event: prevbox(event,eotp3,eotp2))
+eotp4.bind("<BackSpace>",lambda event: prevbox(event,eotp4,eotp3))
+eotp5.bind("<BackSpace>",lambda event: prevbox(event,eotp5,eotp4))
+eotp6.bind("<BackSpace>",lambda event: prevbox(event,eotp6,eotp5))
 
-fgamertag = tk.CTkFrame(master=win, corner_radius=20)
-ecreateusername = tk.CTkEntry(fgamertag, placeholder_text="Enter Gamertag",width=325,corner_radius=30)
-bnext5= tk.CTkButton(master=fgamertag, text="Sign Up!", corner_radius=20,command=dsignup)
+fpassword=tk.CTkFrame(master=win,corner_radius=20)
+ecreatepassword=tk.CTkEntry(fpassword,placeholder_text="Enter password",width=325,corner_radius=30,show='*')
+econfirmpassword=tk.CTkEntry(fpassword,placeholder_text="Enter password again",width=325,corner_radius=30,show='*')
+lminchar=tk.CTkLabel(fpassword,text="At least 8 characters",text_color='red',font=tk.CTkFont(size=12,weight="bold"))
+luppercase=tk.CTkLabel(fpassword,text="At least one uppercase letter",text_color='red',font=tk.CTkFont(size=12,weight="bold"))
+llowercase=tk.CTkLabel(fpassword,text="At least one lowercase letter",text_color='red',font=tk.CTkFont(size=12,weight="bold"))
+lnumber=tk.CTkLabel(fpassword,text="At least one number",text_color='red',font=tk.CTkFont(size=12,weight="bold"))
+lspecialchar=tk.CTkLabel(fpassword,text="At least one special character",text_color='red',font=tk.CTkFont(size=12,weight="bold"))
+lspace=tk.CTkLabel(fpassword,text="No spaces",text_color='red',font=tk.CTkFont(size=12,weight="bold"))
+lmatch=tk.CTkLabel(fpassword,text="Passwords must match",text_color='red',font=tk.CTkFont(size=12,weight="bold"))
+bnext4=tk.CTkButton(master=fpassword,text="Next",corner_radius=20,command=dpassword)
 
+#CHECK GAMERTAG FOR DUPLICATES
+fgamertag=tk.CTkFrame(master=win,corner_radius=20)
+ecreateusername=tk.CTkEntry(fgamertag,placeholder_text="Enter Gamertag",width=325,corner_radius=30)
+bnext5=tk.CTkButton(master=fgamertag,text="Sign Up!",corner_radius=20,command=lambda: dsignup() if ecreateusername.get() !="" else messagebox("Please fill in all fields"))
 
-try:
-    isettings = tk.CTkImage(dark_image=Image.open("F:\Grade 11\maze gen\Maze-Game\settings.png"),size=(50,50))
+#START THE PROGRAM
 
-except:
-    isettings = tk.CTkImage(dark_image=Image.new("RGB",(50,50),(0,0,0)),size=(50,50))
-
-
-
-
-
-
-
-
-
-
-
-
-backgroundmusic()
-pmazecontrols()
-#plogin()
+music()
+plogin()
 win.mainloop()
+mk.quit()

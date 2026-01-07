@@ -14,6 +14,13 @@ def login(username,password):
         return False
 
 def signup(username,password,firstname,lastname,email):
+    cur.execute("SELECT * FROM login")
+    logindb=list(cur.fetchall())
+    print(logindb)
+    for i in logindb:
+        if username == i[0]:
+            return False
     password=bcrypt.hashpw(password.encode("utf-8"),bcrypt.gensalt())
     cur.execute("INSERT INTO login (gamertag, password, firstname, lastname, email) VALUES (%s, %s, %s, %s, %s)", (username,password,firstname,lastname,email))
     db.commit()
+    return True
