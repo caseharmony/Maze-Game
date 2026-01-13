@@ -89,4 +89,4 @@ def mazegenerate(n):
         i = i + 1
     image.putpixel((n - 1, n - 1), (0, 255, 0))
     image.putpixel((1, 1), (255, 0, 0))
-    return [image, maze]
+    return [image]
