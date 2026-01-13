@@ -1353,6 +1353,6 @@ bnext5=tk.CTkButton(master=fgamertag,text="Sign Up!",corner_radius=20,command=la
 #START THE PROGRAM
 
 music()
-pmazecontrols()
+plogin()
 win.mainloop()
 mk.quit()
