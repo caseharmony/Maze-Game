@@ -332,8 +332,7 @@ def realtimebruteforce():
     forkprocessor=[]
     path=[]
     f[0].putpixel((1,1),(0,255,0))
-    while not (i==len(f[1]) - 1 and j==len(
-            f[1]) - 1):
+    while not (i==len(f[1]) - 1 and j==len(f[1]) - 1):
         if f[1][i][j][0]==-2:
             i=forkprocessor[- 3]
             j=forkprocessor[- 2]
@@ -518,9 +517,14 @@ def reset():
     fmazegame.grid_forget()
     win.focus_set()
     fwinnerbox.grid_forget()
+    ftimer.grid_forget()
+    lock=True
 
 def realtimesolver():
-    global zoommode,lock
+    if f==[]:
+        messagebox("Generate Maze First")
+        return
+    global zoommode
     if lock:
         return
     lockmaze()
@@ -534,10 +538,10 @@ def realtimesolver():
 
 def solvemaze():
     global zoommode
-    if lock:
+    if f==[]:
+        messagebox("Generate Maze First")
         return
-    f[0]=mazessolve(f[1],f[0])
-    f.append(f[0].copy())
+    f[0]=f[3].copy()
     x=zoommode
     zoommode=tk.StringVar(value="off")
     placeimg()
@@ -552,23 +556,30 @@ def genm():
     bgenmaze.configure(state="disabled")
     if emazesize.get()=='':
         emazesize.insert(0,'30')
-    if not lock:
-        ltimer.configure(text='00:00:-1')
-    else:
-        ltimer.configure(text='00:00:00')
+    ltimer.configure(text='00:00:00')
+    tt=ltimer.cget("text")
     lock=False
     x,y=1,1
-    n=int(emazesize.get())
+    try:
+        n=int(emazesize.get())
+    except:
+        emazesize.insert(0,'30')
+        n=30
     if sbmazealg.get()=='DFS':
         f=mazegenerate(n)
     else:
         f=prim(n)
     f.append(f[0].copy())
+    f.append(mazessolve(f[1],f[0]))
+    f[0]=f[2].copy()
     global lmazepic
     lmazepicl.grid(row=0,column=0,padx=10,pady=10)
     placeimg()
     ptimer()
-    timer()
+    def check():
+        if tt==ltimer.cget("text"):
+            timer()
+    win.after(1000,check)
     win.after(1000,lambda: bgenmaze.configure(state="normal"))
     emazesize.configure(state="readonly")
 
@@ -657,9 +668,17 @@ def down(event):
     placeimg()
 
 def replay():
-    fmazegame.lift()
     global x,y,emazesize,f,lock,breplay
     breplay.configure(state="readonly")
+    tt=ltimer.cget("text")
+    if f==[]:
+        breplay.configure(state="normal")
+        messagebox("Generate Maze First")
+        return
+    if moves==[]:
+        breplay.configure(state="normal")
+        return
+    fmazegame.lift()
     lock=True
     f[0]=f[2].copy()
     x,y=1,1
@@ -678,14 +697,27 @@ def replay():
         win.update()
         win.after(10)
     lock=False
-    timer()
+    def check():
+        if tt==ltimer.cget("text"):
+            timer()
+    win.after(1000,check)
     breplay.configure(state="normal")
 
+def clear():
+    if lock:
+        return
+    if f==[]:
+        messagebox("Generate Maze First")
+        return
+    global x,y,moves
+    x,y,moves,f[0]=1,1,[],f[2].copy()
+    placeimg()
+    
 #AUDIO AND TIMER FUNCTIONS
 
 def music():
     if musicmode.get()=='on':
-        c0.play(mk.Sound(os.path.dirname(__file__)+"\\m23.mp3"),loops=-1)
+        c0.play(mk.Sound(os.path.dirname(__file__)+"\\"+vsong.get()+".mp3"),loops=-1)
     else:
         c0.stop()
 
@@ -698,9 +730,6 @@ def sfx():
 def timer():
     if not lock:
         time=ltimer.cget("text")
-        if time=="00:00:-1":
-            ltimer.configure(text='00:00:00')
-            return
         h,m,s=map(int,time.split(':'))
         s+=1
         if s==60:
@@ -933,14 +962,15 @@ def pmazecontrols():
     lgentxt.grid(row=1,column=11,padx=20,pady=10,columnspan=6,sticky="w")
     emazesize.grid(row=2,column=11,padx=20,pady=10,columnspan=10,sticky="ew")
     bgenmaze.grid(row=3,column=11,padx=20,pady=10,columnspan=10,sticky="ew")
-    lalgtxt.grid(row=4,column=11,padx=20,pady=10,columnspan=6,sticky="w")
-    bsolamaze.grid(row=5,column=11,padx=20,pady=10,columnspan=5,sticky="w")
-    bsolsmaze.grid(row=5,column=16,padx=20,pady=10,columnspan=5,sticky="e")
-    lsavefiletxt.grid(row=6,column=11,padx=20,pady=10,columnspan=6,sticky="w")
-    bfilesave.grid(row=7,column=11,padx=20,pady=10,columnspan=10,sticky="ew")
-    bsaveimgs.grid(row=8,column=11,padx=20,pady=10,columnspan=10,sticky="ew")
-    bsaveimguns.grid(row=9,column=11,padx=20,pady=10,columnspan=10,sticky="ew")
-    breplay.grid(row=10,column=11,padx=20,pady=10,columnspan=10,sticky="ew")
+    bclear.grid(row=4,column=11,padx=20,pady=10,columnspan=10,sticky="ew")
+    lalgtxt.grid(row=5,column=11,padx=20,pady=10,columnspan=6,sticky="w")
+    bsolamaze.grid(row=6,column=11,padx=20,pady=10,columnspan=5,sticky="w")
+    bsolsmaze.grid(row=6,column=16,padx=20,pady=10,columnspan=5,sticky="e")
+    breplay.grid(row=7,column=11,padx=20,pady=10,columnspan=10,sticky="ew")
+    lsavefiletxt.grid(row=8,column=11,padx=20,pady=10,columnspan=6,sticky="w")
+    bfilesave.grid(row=9,column=11,padx=20,pady=10,columnspan=10,sticky="ew")
+    bsaveimg.grid(row=10,column=11,padx=20,pady=10,columnspan=10,sticky="ew")
+    sbimgno.grid(row=11,column=11,padx=20,pady=10,columnspan=10,sticky="ew")
     fsettings.grid(row=0,column=11,padx=20,pady=(100,20),columnspan=10,rowspan=10,sticky="ne")
     psettings()
     fmazecontrols.lift()
@@ -958,7 +988,8 @@ def psettings():
     sbmazealg.grid(row=1,column=16,padx=20,pady=10,columnspan=5,sticky="w")
     lsolvealg.grid(row=2,column=11,padx=20,pady=0,columnspan=5,sticky="w")
     sbsolvealg.grid(row=2,column=16,padx=20,pady=10,columnspan=5,sticky="w")
-    smovemode.grid(row=4,column=11,padx=20,pady=10,columnspan=5,sticky="w")
+    lsong.grid(row=4,column=11,padx=20,pady=10,columnspan=5,sticky="w")
+    osong.grid(row=4,column=16,padx=20,pady=10,columnspan=5,sticky="w")
     smusic.grid(row=5,column=11,padx=20,pady=10,columnspan=5,sticky="w")
     slmusvol.grid(row=5,column=16,padx=20,pady=10,columnspan=5,sticky="w")
     ssfx.grid(row=6,column=11,padx=20,pady=10,columnspan=5,sticky="w")
@@ -966,6 +997,37 @@ def psettings():
     szoom.grid(row=7,column=11,padx=20,pady=10,columnspan=5,sticky="w")
     ezoom.grid(row=7,column=16,padx=20,pady=10,columnspan=5,sticky="w")
     blogout.grid(row=8,column=11,padx=20,pady=10,columnspan=10,sticky="ew")
+
+def pfilemanager():
+    global ffilemanager
+    ffilemanager=tk.CTkFrame(master=win,corner_radius=20)
+    lfilemanager=tk.CTkLabel(ffilemanager,text="File Manager:",font=tk.CTkFont(size=30,weight="bold"))
+    lsave=tk.CTkLabel(ffilemanager,text="Save file:",font=tk.CTkFont(size=20,weight="bold"))
+    global euploadname
+    euploadname=tk.CTkEntry(ffilemanager,placeholder_text="file name",corner_radius=30,width=325)
+    bsavelocal=tk.CTkButton(ffilemanager,corner_radius=30,text="download",width=155,command=savelocal)
+    bsavecloud=tk.CTkButton(ffilemanager,corner_radius=30,text="save to cloud",width=155,command=savecloud)
+    lgetcloud=tk.CTkLabel(ffilemanager,text="Get File From Cloud:",font=tk.CTkFont(size=20,weight="bold"))
+    global vgetcloud
+    vgetcloud=tk.StringVar()
+    ogetcloud=tk.CTkOptionMenu(ffilemanager,values=savefile(account),width=155,variable=vgetcloud)
+    bgetcloud=tk.CTkButton(ffilemanager,corner_radius=100,text="load save",width=155,command=opencloud)
+    lgetlocal=tk.CTkLabel(ffilemanager,text="open save file from your drive:",font=tk.CTkFont(size=20,weight="bold"))
+    bgetlocal=tk.CTkButton(ffilemanager,corner_radius=30,text="Open File",width=325,command=openlocal)
+    bclosefilemanager=tk.CTkButton(ffilemanager,corner_radius=30,text="Close",width=155,command=lambda: ffilemanager.grid_forget())
+
+    ffilemanager.grid(row=0,column=11,padx=20,pady=20,rowspan=10,columnspan=21,sticky="nsew")
+    lfilemanager.grid(row=0,column=11,columnspan=10,padx=20,pady=20,sticky="nw")
+    lsave.grid(row=1,column=11,columnspan=10,padx=20,pady=(20,5),sticky="w")
+    euploadname.grid(row=2,column=11,columnspan=10,padx=20,pady=10,sticky="ew")
+    bsavelocal.grid(row=3,column=11,columnspan=5,padx=20,pady=10,sticky="ew")
+    bsavecloud.grid(row=3,column=16,columnspan=5,padx=20,pady=10,sticky="ew")
+    lgetcloud.grid(row=4,column=11,columnspan=10,padx=20,pady=(20,5),sticky="w")
+    ogetcloud.grid(row=5,column=11,columnspan=5,padx=20,pady=10,sticky="ew")
+    bgetcloud.grid(row=5,column=16,columnspan=5,padx=20,pady=10,sticky="ew")
+    lgetlocal.grid(row=6,column=11,columnspan=10,padx=20,pady=(20,5),sticky="w")
+    bgetlocal.grid(row=7,column=11,columnspan=10,padx=20,pady=10,sticky="ew")
+    bclosefilemanager.grid(row=8,column=16,padx=20,pady=(120,10),sticky="sew")
 
 def pwinnerboxload():
     lwin.grid(row=0,column=0,padx=20,pady=20)
@@ -981,6 +1043,8 @@ def trophyupdate(frame):
     ltrophy.configure(image=trophyframes[frame])
     nextindex=(frame + 1) % len(trophyframes)
     win.after(duration,trophyupdate,nextindex)
+
+#SAVE FILE FUNCTIONS
 
 def makefile(maze,moves,time):
     file=str(maze)+"||||"+str(moves)+"||||"+time
@@ -1024,6 +1088,8 @@ def breakfile(file):
     lock=False
     x,y=1,1
     f.append(f[0].copy())
+    f.append(mazessolve(f[1],f[0]))
+    f[0]=f[2].copy()
     lmazepicl.grid(row=0,column=0,padx=10,pady=10)
     ffilemanager.grid_forget()
     replay()
@@ -1068,36 +1134,23 @@ def opencloud():
     file=importsave(account,vgetcloud.get())
     breakfile(file)
 
-def pfilemanager():
-    global ffilemanager
-    ffilemanager=tk.CTkFrame(master=win,corner_radius=20)
-    lfilemanager=tk.CTkLabel(ffilemanager,text="File Manager:",font=tk.CTkFont(size=30,weight="bold"))
-    lsave=tk.CTkLabel(ffilemanager,text="Save file:",font=tk.CTkFont(size=20,weight="bold"))
-    global euploadname
-    euploadname=tk.CTkEntry(ffilemanager,placeholder_text="file name",corner_radius=30,width=325)
-    bsavelocal=tk.CTkButton(ffilemanager,corner_radius=30,text="download",width=155,command=savelocal)
-    bsavecloud=tk.CTkButton(ffilemanager,corner_radius=30,text="save to cloud",width=155,command=savecloud)
-    lgetcloud=tk.CTkLabel(ffilemanager,text="Get File From Cloud:",font=tk.CTkFont(size=20,weight="bold"))
-    global vgetcloud
-    vgetcloud=tk.StringVar()
-    ogetcloud=tk.CTkOptionMenu(ffilemanager,values=savefile(account),width=155,variable=vgetcloud)
-    bgetcloud=tk.CTkButton(ffilemanager,corner_radius=100,text="load save",width=155,command=opencloud)
-    lgetlocal=tk.CTkLabel(ffilemanager,text="open save file from your drive:",font=tk.CTkFont(size=20,weight="bold"))
-    bgetlocal=tk.CTkButton(ffilemanager,corner_radius=30,text="Open File",width=325,command=openlocal)
-    bclosefilemanager=tk.CTkButton(ffilemanager,corner_radius=30,text="Close",width=155,command=lambda: ffilemanager.grid_forget())
+#SAVE IMAGE FUNCTION
 
-    ffilemanager.grid(row=0,column=11,padx=20,pady=20,rowspan=10,columnspan=21,sticky="nsew")
-    lfilemanager.grid(row=0,column=11,columnspan=10,padx=20,pady=20,sticky="nw")
-    lsave.grid(row=1,column=11,columnspan=10,padx=20,pady=(20,5),sticky="w")
-    euploadname.grid(row=2,column=11,columnspan=10,padx=20,pady=10,sticky="ew")
-    bsavelocal.grid(row=3,column=11,columnspan=5,padx=20,pady=10,sticky="ew")
-    bsavecloud.grid(row=3,column=16,columnspan=5,padx=20,pady=10,sticky="ew")
-    lgetcloud.grid(row=4,column=11,columnspan=10,padx=20,pady=(20,5),sticky="w")
-    ogetcloud.grid(row=5,column=11,columnspan=5,padx=20,pady=10,sticky="ew")
-    bgetcloud.grid(row=5,column=16,columnspan=5,padx=20,pady=10,sticky="ew")
-    lgetlocal.grid(row=6,column=11,columnspan=10,padx=20,pady=(20,5),sticky="w")
-    bgetlocal.grid(row=7,column=11,columnspan=10,padx=20,pady=10,sticky="ew")
-    bclosefilemanager.grid(row=8,column=16,padx=20,pady=(120,10),sticky="sew")
+def saveimg():
+    if f==[]:
+        messagebox("Generate Maze First")
+        return
+    imgno=sbimgno.get()
+    if imgno=='Current':
+        imgno=0
+    elif imgno=='Unsolved':
+        imgno=2
+    else:
+        imgno=3
+    try:
+        f[imgno].resize((1080,1080),Image.NONE).save(filedialog.asksaveasfilename(initialdir="/",title="Save File As",initialfile="output",defaultextension=sbimgtype.get()))
+    except:
+        pass
 
 #MESSAGE BOX
    
@@ -1105,7 +1158,7 @@ def messagebox(text):
     wait=tk.IntVar(value=0)
     win.grid_rowconfigure(0,weight=1)
     win.grid_columnconfigure(0,weight=1)
-    fmsgbox=tk.CTkFrame(master=win,corner_radius=20,bg_color="#000001",border_color="#00AEFF",border_width=1.75)
+    fmsgbox=tk.CTkFrame(master=win,corner_radius=20,bg_color="#000001",border_width=1.75)
     c1.play(mk.Sound(os.path.dirname(__file__)+"\\message.wav"))
     fmsgbox.grid(row=0,column=0,padx=20,pady=20,sticky="")
     pywinstyles.set_opacity(fmsgbox,color="#000001")
@@ -1128,10 +1181,11 @@ c0=mk.Channel(0)
 c1=mk.Channel(1)
 win=tk.CTk()
 win.title("Maze Game")
+win.iconbitmap(os.path.dirname(__file__)+"\\icon.ico")
 win.geometry(str(win.winfo_screenwidth()) + "x" + str(win.winfo_screenheight()))
 tk.set_window_scaling(0.6)
 tk.set_appearance_mode("dark")
-tk.set_default_color_theme(os.path.dirname(__file__)+"\\Blue.json") 
+tk.set_default_color_theme(os.path.dirname(__file__)+"\\orange.json") 
 win.grid_columnconfigure(0,weight=1)
 win.grid_rowconfigure(0,weight=1)
 
@@ -1143,7 +1197,7 @@ eusername=tk.CTkEntry(flogin,placeholder_text="Enter Username",width=325,corner_
 epassword=tk.CTkEntry(flogin,placeholder_text="Enter password",width=325,corner_radius=30,show='*')
 bsignup=tk.CTkButton(flogin,corner_radius=30,fg_color='transparent',hover=False,text="don't have an account?",text_color="#67C1FD",command=pname)
 blogin=tk.CTkButton(flogin,corner_radius=30,text="login",command=dlogin)
-ilogo=tk.CTkImage(dark_image=Image.open(os.path.dirname(__file__)+"\\im2.png"),size=(300,300))
+ilogo=tk.CTkImage(dark_image=Image.open(os.path.dirname(__file__)+"\\icon.png"),size=(300,300))
 
 #MAZE WINDOW SETUP
 
@@ -1160,14 +1214,16 @@ lcontrolstxt=tk.CTkLabel(fmazecontrols,text="Controls:",font=tk.CTkFont(size=30,
 lgentxt=tk.CTkLabel(fmazecontrols,text="Configure and Generate:",font=tk.CTkFont(size=20,weight="bold"))
 emazesize=tk.CTkEntry(fmazecontrols,placeholder_text="Enter Maze Size(1-x)",width=325,corner_radius=30)
 bgenmaze=tk.CTkButton(fmazecontrols,corner_radius=30,text="generate maze",command=genm)
+bclear=tk.CTkButton(fmazecontrols,corner_radius=30,text="clear",command=clear)
 lalgtxt=tk.CTkLabel(fmazecontrols,text="Algoritmic solving:",font=tk.CTkFont(size=20,weight="bold"))
 bsolamaze=tk.CTkButton(fmazecontrols,corner_radius=30,text="Solve fast",command=solvemaze,width=155)
 bsolsmaze=tk.CTkButton(fmazecontrols,corner_radius=30,text="see the program",command=realtimesolver,width=155)
+breplay=tk.CTkButton(fmazecontrols,corner_radius=30,text="replay your moves",command=replay,width=325)
 lsavefiletxt=tk.CTkLabel(fmazecontrols,text="Saving and Exporting:",font=tk.CTkFont(size=20,weight="bold"))
-bsaveimgs=tk.CTkButton(fmazecontrols,corner_radius=30,text="export unsoved maze to image",command=lambda: f[2].resize((1080,1080),Image.NONE).save(filedialog.asksaveasfilename(initialdir="/",title="Save File As",initialfile="output",defaultextension=sbimgtype.get())))
-bsaveimguns=tk.CTkButton(fmazecontrols,corner_radius=30,text="export solved maze to image",command=lambda: f[3].resize((1080,1080),Image.NONE).save(filedialog.asksaveasfilename(initialdir="/",title="Save File As",initialfile="output",defaultextension=sbimgtype.get())))
+bsaveimg=tk.CTkButton(fmazecontrols,corner_radius=30,text="export maze to image",command=saveimg)
+sbimgno=tk.CTkSegmentedButton(fmazecontrols,values=["Current","Unsolved","Solved"],corner_radius=30)
+sbimgno.set("Unsolved")
 bfilesave=tk.CTkButton(fmazecontrols,corner_radius=30,text="Open File Manager",command=pfilemanager,width=155)
-breplay=tk.CTkButton(fmazecontrols,corner_radius=30,text="replay",command=replay,width=325)
 win.bind("<Left>",left)
 win.bind("<Right>",right)
 win.bind("<Up>",up)
@@ -1213,7 +1269,10 @@ sbmazealg.set("Primz")
 lsolvealg=tk.CTkLabel(fsettings,text="Select Maze Solver:",font=tk.CTkFont(size=12))
 sbsolvealg=tk.CTkSegmentedButton(fsettings,values=["AStar","Brute Force"],corner_radius=30)
 sbsolvealg.set("AStar")
-smovemode=tk.CTkSwitch(fsettings,text="Move to next node",variable=movemode,onvalue="on",offvalue="off")
+lsong=tk.CTkLabel(fsettings,text="Select Song:",font=tk.CTkFont(size=12))
+vsong=tk.StringVar()
+vsong.set("m23")
+osong=tk.CTkOptionMenu(fsettings,values=["m22","m23","m24","m25","m26"],width=155,variable=vsong,command=lambda choice: music())
 smusic=tk.CTkSwitch(fsettings,text="background music",variable=musicmode,command=music,onvalue="on",offvalue="off")
 ssfx=tk.CTkSwitch(fsettings,text="sound effects",variable=sfxmode,command=sfx,onvalue="on",offvalue="off")
 slmusvol=tk.CTkSlider(fsettings,from_=0,to=1,width=165,command=c0.set_volume,number_of_steps=100)
@@ -1290,7 +1349,6 @@ bnext4=tk.CTkButton(master=fpassword,text="Next",corner_radius=20,command=dpassw
 fgamertag=tk.CTkFrame(master=win,corner_radius=20)
 ecreateusername=tk.CTkEntry(fgamertag,placeholder_text="Enter Gamertag",width=325,corner_radius=30)
 bnext5=tk.CTkButton(master=fgamertag,text="Sign Up!",corner_radius=20,command=lambda: dsignup() if ecreateusername.get() !="" else messagebox("Please fill in all fields"))
-
 
 #START THE PROGRAM
 

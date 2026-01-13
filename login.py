@@ -1,8 +1,7 @@
 import bcrypt
 import mysql.connector as mc
-
-#CREATE DATABASE AND TABLE IF IT DOES NOT EXIST
-def x():
+password="x"
+if password=="x":
     db=mc.connect(host="localhost",user="root",password="sql123")
     cur=db.cursor()
     sql_script = """
@@ -19,11 +18,18 @@ def x():
     cur.execute(sql_script)
     db.commit()
     db.close()
-
-#FUNCTIONS FOR LOGIN AND SIGNUP
-
-db=mc.connect(host="localhost",user="root",password="sql123",database="amazeing")
-cur=db.cursor()
+    db=mc.connect(host="localhost",user="root",password="sql123",database="amazeing")
+    cur=db.cursor()
+else:
+    config = {
+    "user": "amazeing_involvedbe",
+    "password": password,
+    "host": "7ax81r.h.filess.io",
+    "port": 3307,
+    "database": "amazeing_involvedbe"
+    }
+    db=mc.connect(**config)
+    cur=db.cursor()
 
 def login(username,password):
     db.ping(reconnect=True)
