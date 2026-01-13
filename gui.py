@@ -10,86 +10,98 @@ from pygame import mixer as mk
 import pywinstyles
 import os
 
-def traverse(path):
+def traverse(something):
+    #first thing in forks - found by going down first path
+    #second thing in forks - found by going down second path
+    #and so on
     global f
-    forks=[]
-    h,k=path
-    red=(h,k)
-    g,p=h,k
-    if f[1][g][p][0]==0:
-        g=g - 1
-    elif f[1][g][p][0]==1:
-        g=g + 1
-    elif f[1][g][p][0]==2:
-        p=p - 1
+    forks = []
+    o, p = something
+    red = (o, p)
+    q, r = o, p
+    if f[1][q][r][0] == 0:
+        q = q - 1
+    elif f[1][q][r][0] == 1:
+        q = q + 1
+    elif f[1][q][r][0] == 2:
+        r = r - 1
     else:
-        p=p + 1
-    if f[1][h][k][1]==0:
-        h=h - 1
-    elif f[1][h][k][1]==1:
-        h=h + 1
-    elif f[1][h][k][1]==2:
-        k=k - 1
-    else:
-        k=k + 1
+        r = r + 1
+
+    try:
+        if f[1][o][p][1] == 0:
+            o = o - 1
+        elif f[1][o][p][1] == 1:
+            o = o + 1
+        elif f[1][o][p][1] == 2:
+            p = p - 1
+        else:
+            p = p + 1
+    except IndexError:
+        print(o,p,'seems like that was not a fork')
+
+
     while True:
-        if f[1][g][p][0]==-2:
+        if f[1][q][r][0] == -2:
             break
-        elif len(f[1][g][p]) > 1:
+        elif len(f[1][q][r]) > 1:
             break
-        elif g==len(f[1]) - 1==p:
+        elif q == len(f[1]) - 1 == r:
             break
-        if f[1][g][p][0]==0:
-            g=g - 1
-        elif f[1][g][p][0]==1:
-            g=g + 1
-        elif f[1][g][p][0]==2:
-            p=p - 1
+        #print(g,f,'pointer',maze[g][f])
+        if f[1][q][r][0] == 0:
+            q = q - 1
+        elif f[1][q][r][0] == 1:
+            q = q + 1
+        elif f[1][q][r][0] == 2:
+            r = r - 1
         else:
-            p=p + 1
-    forks.append((g,p))
+            r = r + 1
+    forks.append((q, r))
     while True:
-        if f[1][h][k][0]==-2:
+        if f[1][o][p][0] == -2:
             break
-        elif len(f[1][h][k]) > 1:
+        elif len(f[1][o][p]) > 1:
             break
-        elif h==len(f[1]) - 1==k:
+        elif o == len(f[1]) - 1 == p:
             break
-        if f[1][h][k][0]==0:
-            h=h - 1
-        elif f[1][h][k][0]==1:
-            h=h + 1
-        elif f[1][h][k][0]==2:
-            k=k - 1
+        #print(h,k,'pointer',maze[h][k])
+        if f[1][o][p][0] == 0:
+            o = o - 1
+        elif f[1][o][p][0] == 1:
+            o = o + 1
+        elif f[1][o][p][0] == 2:
+            p = p - 1
         else:
-            k=k + 1
-    forks.append((h,k))
-    h,k=red
-    if len(f[1][h][k])==3:
-        if f[1][h][k][2]==0:
-            h=h - 1
-        elif f[1][h][k][2]==1:
-            h=h + 1
-        elif f[1][h][k][2]==2:
-            k=k - 1
+            p = p + 1
+    forks.append((o, p))
+    o, p = red
+    if len(f[1][o][p]) == 3:
+        if f[1][o][p][2] == 0:
+            o = o - 1
+        elif f[1][o][p][2] == 1:
+            o = o + 1
+        elif f[1][o][p][2] == 2:
+            p = p - 1
         else:
-            k=k + 1
+            p = p + 1
         while True:
-            if f[1][h][k][0]==-2:
+            if f[1][o][p][0] == -2:
                 break
-            elif len(f[1][h][k]) > 1:
+            elif len(f[1][o][p]) > 1:
                 break
-            elif h==len(f[1]) - 1==k:
+            elif o == len(f[1]) - 1 == p:
                 break
-            if f[1][h][k][0]==0:
-                h=h - 1
-            elif f[1][h][k][0]==1:
-                h=h + 1
-            elif f[1][h][k][0]==2:
-                k=k - 1
+            #print(h,k,'pointer',maze[h][k])
+            if f[1][o][p][0] == 0:
+                o = o - 1
+            elif f[1][o][p][0] == 1:
+                o = o + 1
+            elif f[1][o][p][0] == 2:
+                p = p - 1
             else:
-                k=k + 1
-        forks.append((h,k))
+                p = p + 1
+        forks.append((o, p))
     return forks
 
 def heurestic(a):
@@ -98,131 +110,129 @@ def heurestic(a):
 def realtimeastar():
     global f
     spots=[(0,0)]
-    tree={(0,0): None}
+    tree={(0,0): (0,0)} #New arrangement safeguards against the origin being a fork. We treat it kind of like a pseudo fork (weather it is or not) that points to itself
     lf=[(0,0)]
-    i,j=0,0
-    y=0
-    while not (i==len(f[1]) - 1 and j==len(f[1]) - 1):
+    i1,j1=0,0
+    y1=0
+    while not (i1==len(f[1]) - 1 and j1==len(f[1]) - 1):
         placeimg()
         win.update()
         win.update_idletasks()
         minimum=heurestic(spots[0])
         t=spots[0]
-        y=0
-        for x in range(len(spots)):
-            if heurestic(spots[x]) < minimum:
-                minimum=heurestic(spots[x])
-                t=spots[x]
-                y=x
-        i,j=t
-        f[0].putpixel((j + j + 1,i + i + 1),(0,255,0))
-        if len(f[1][i][j])==1:
-            if f[1][i][j][0]==0:
-                f[0].putpixel((j + j + 1,i + i),(0,255,0))
-                i=i - 1
-                f[0].putpixel((j + j + 1,i + i + 1),(0,255,0))
-                spots[y]=(i,j)
-            elif f[1][i][j][0]==1:
-                f[0].putpixel((j + j + 1,i + i + 2),(0,255,0))
-                i=i + 1
-                f[0].putpixel((j + j + 1,i + i + 1),(0,255,0))
-                spots[y]=(i,j)
-            elif f[1][i][j][0]==2:
-                f[0].putpixel((j + j,i + i + 1),(0,255,0))
-                j=j - 1
-                f[0].putpixel((j + j + 1,i + i + 1),(0,255,0))
-                spots[y]=(i,j)
-            elif f[1][i][j][0]==3:
-                f[0].putpixel((j + j + 2,i + i + 1),(0,255,0))
-                j=j + 1
-                f[0].putpixel((j + j + 1,i + i + 1),(0,255,0))
-                spots[y]=(i,j)
+        y1=0
+        for x1 in range(len(spots)):
+            if heurestic(spots[x1]) < minimum:
+                minimum=heurestic(spots[x1])
+                t=spots[x1]
+                y1=x1
+        i1,j1=t
+        f[0].putpixel((j1 + j1 + 1,i1 + i1 + 1),(0,255,0))
+        if len(f[1][i1][j1])==1:
+            if f[1][i1][j1][0]==0:
+                f[0].putpixel((j1 + j1 + 1,i1 + i1),(0,255,0))
+                i1=i1 - 1
+                f[0].putpixel((j1 + j1 + 1,i1 + i1 + 1),(0,255,0))
+                spots[y1]=(i1,j1)
+            elif f[1][i1][j1][0]==1:
+                f[0].putpixel((j1 + j1 + 1,i1 + i1 + 2),(0,255,0))
+                i1=i1 + 1
+                f[0].putpixel((j1 + j1 + 1,i1 + i1 + 1),(0,255,0))
+                spots[y1]=(i1,j1)
+            elif f[1][i1][j1][0]==2:
+                f[0].putpixel((j1 + j1,i1 + i1 + 1),(0,255,0))
+                j1=j1 - 1
+                f[0].putpixel((j1 + j1 + 1,i1 + i1 + 1),(0,255,0))
+                spots[y1]=(i1,j1)
+            elif f[1][i1][j1][0]==3:
+                f[0].putpixel((j1 + j1 + 2,i1 + i1 + 1),(0,255,0))
+                j1=j1 + 1
+                f[0].putpixel((j1 + j1 + 1,i1 + i1 + 1),(0,255,0))
+                spots[y1]=(i1,j1)
             else:
-                spots.pop(y)
-                lf.pop(y)
-        elif len(f[1][i][j])==2:
-            h,k=i,j
-            d=lf.pop(y)
-            tree[(i,j)]=d
-            lf.append((i,j))
-            lf.append((i,j))
-            if f[1][i][j][0]==0:
-                f[0].putpixel((k + k + 1,h + h),(0,255,0))
-                h=h - 1
-                f[0].putpixel((k + k + 1,h + h + 1),(0,255,0))
-            elif f[1][i][j][0]==1:
-                f[0].putpixel((k + k + 1,h + h + 2),(0,255,0))
-                h=h + 1
-                f[0].putpixel((k + k + 1,h + h + 1),(0,255,0))
-            elif f[1][i][j][0]==2:
-                f[0].putpixel((k + k,h + h + 1),(0,255,0))
-                k=k - 1
-                f[0].putpixel((k + k + 1,h + h + 1),(0,255,0))
+                spots.pop(y1)
+                lf.pop(y1)
+        elif len(f[1][i1][j1])==2:
+            l,m=i1,j1
+            d=lf.pop(y1)
+            tree[(i1,j1)]=d
+            #print(tree[(0,0)],'we are at a fork now',i1,j1)
+            lf.append((i1,j1))
+            lf.append((i1,j1))
+            if f[1][i1][j1][0]==0:
+                f[0].putpixel((m + m + 1, l + l), (0, 255, 0))
+                l= l - 1
+                f[0].putpixel((m + m + 1, l + l + 1), (0, 255, 0))
+            elif f[1][i1][j1][0]==1:
+                f[0].putpixel((m + m + 1, l + l + 2), (0, 255, 0))
+                l= l + 1
+                f[0].putpixel((m + m + 1, l + l + 1), (0, 255, 0))
+            elif f[1][i1][j1][0]==2:
+                f[0].putpixel((m + m, l + l + 1), (0, 255, 0))
+                m=m - 1
+                f[0].putpixel((m + m + 1, l + l + 1), (0, 255, 0))
             else:
-                f[0].putpixel((k + k + 2,h + h + 1),(0,255,0))
-                k=k + 1
-                f[0].putpixel((k + k + 1,h + h + 1),(0,255,0))
-            if f[1][i][j][1]==0:
-                f[0].putpixel((j + j + 1,i + i ),(0,255,0))
-                i=i - 1
-                f[0].putpixel((j + j + 1,i + i + 1 ),(0,255,0))
-            elif f[1][i][j][1]==1:
-                f[0].putpixel((j + j + 1,i + i + 2 ),(0,255,0))
-                i=i + 1
-                f[0].putpixel((j + j + 1,i + i + 1 ),(0,255,0))
-            elif f[1][i][j][1]==2:
-                f[0].putpixel((j + j,i + i + 1 ),(0,255,0))
-                j=j - 1
-                f[0].putpixel((j + j + 1,i + i + 1 ),(0,255,0))
+                f[0].putpixel((m + m + 2, l + l + 1), (0, 255, 0))
+                m=m + 1
+                f[0].putpixel((m + m + 1, l + l + 1), (0, 255, 0))
+            if f[1][i1][j1][1]==0:
+                f[0].putpixel((j1 + j1 + 1,i1 + i1 ),(0,255,0))
+                i1=i1 - 1
+                f[0].putpixel((j1 + j1 + 1,i1 + i1 + 1 ),(0,255,0))
+            elif f[1][i1][j1][1]==1:
+                f[0].putpixel((j1 + j1 + 1,i1 + i1 + 2 ),(0,255,0))
+                i1=i1 + 1
+                f[0].putpixel((j1 + j1 + 1,i1 + i1 + 1 ),(0,255,0))
+            elif f[1][i1][j1][1]==2:
+                f[0].putpixel((j1 + j1,i1 + i1 + 1 ),(0,255,0))
+                j1=j1 - 1
+                f[0].putpixel((j1 + j1 + 1,i1 + i1 + 1 ),(0,255,0))
             else:
-                f[0].putpixel((j + j + 2,i + i + 1 ),(0,255,0))
-                j=j + 1
-                f[0].putpixel((j + j + 1,i + i + 1 ),(0,255,0))
-            spots.pop(y)
-            spots.append((i,j))
-            spots.append((h,k))
-            if heurestic((h,k)) > heurestic((i,j)):
+                f[0].putpixel((j1 + j1 + 2,i1 + i1 + 1 ),(0,255,0))
+                j1=j1 + 1
+                f[0].putpixel((j1 + j1 + 1,i1 + i1 + 1 ),(0,255,0))
+            spots.pop(y1)
+            spots.append((i1,j1))
+            spots.append((l, m))
+            if heurestic((l, m)) > heurestic((i1, j1)):
                 pass
             else:
-                i,j=h,k
-            y=-1
-            if i==len(f[1])-1==j:
-                print(lf[-1])
-                print('This is where the fork the end is supposed to come from')
-                print(tree[lf[-1]])
+                i1,j1=l,m
+            y1=-1
         else:
-            h,k=i,j
-            g,p=i,j
-            d=lf.pop(y)
-            tree[(i,j)]=d
-            lf.append((i,j))
-            lf.append((i,j))
-            lf.append((i,j))
-            if f[1][i][j][0]==0:
-                f[0].putpixel((k + k + 1,h + h),(0,255,0))
-                h=h - 1
-                f[0].putpixel((k + k + 1,h + h + 1),(0,255,0))
-            elif f[1][i][j][0]==1:
-                f[0].putpixel((k + k + 1,h + h + 2),(0,255,0))
-                h=h + 1
-                f[0].putpixel((k + k + 1,h + h + 1),(0,255,0))
-            elif f[1][i][j][0]==2:
-                f[0].putpixel((k + k,h + h + 1),(0,255,0))
-                k=k - 1
-                f[0].putpixel((k + k + 1,h + h + 1),(0,255,0))
+            l,m=i1,j1
+            g,p=i1,j1
+            d=lf.pop(y1)
+            tree[(i1,j1)]=d
+            #print(tree[(0,0)],'we are at a triplet now',i1,j1)
+            lf.append((i1,j1))
+            lf.append((i1,j1))
+            lf.append((i1,j1))
+            if f[1][i1][j1][0]==0:
+                f[0].putpixel((m + m + 1, l + l), (0, 255, 0))
+                l= l - 1
+                f[0].putpixel((m + m + 1, l + l + 1), (0, 255, 0))
+            elif f[1][i1][j1][0]==1:
+                f[0].putpixel((m + m + 1, l + l + 2), (0, 255, 0))
+                l= l + 1
+                f[0].putpixel((m + m + 1, l + l + 1), (0, 255, 0))
+            elif f[1][i1][j1][0]==2:
+                f[0].putpixel((m + m, l + l + 1), (0, 255, 0))
+                m=m - 1
+                f[0].putpixel((m + m + 1, l + l + 1), (0, 255, 0))
             else:
-                f[0].putpixel((k + k + 2,h + h + 1),(0,255,0))
-                k=k + 1
-                f[0].putpixel((k + k + 1,h + h + 1),(0,255,0))
-            if f[1][i][j][1]==0:
+                f[0].putpixel((m + m + 2, l + l + 1), (0, 255, 0))
+                m=m + 1
+                f[0].putpixel((m + m + 1, l + l + 1), (0, 255, 0))
+            if f[1][i1][j1][1]==0:
                 f[0].putpixel((p + p + 1,g + g),(0,255,0))
                 g=g - 1
                 f[0].putpixel((p + p + 1,g + g + 1),(0,255,0))
-            elif f[1][i][j][1]==1:
+            elif f[1][i1][j1][1]==1:
                 f[0].putpixel((p + p + 1,g + g + 2),(0,255,0))
                 g=g + 1
                 f[0].putpixel((p + p + 1,g + g + 1),(0,255,0))
-            elif f[1][i][j][1]==2:
+            elif f[1][i1][j1][1]==2:
                 f[0].putpixel((p + p,g + g + 1),(0,255,0))
                 p=p - 1
                 f[0].putpixel((p + p + 1,g + g + 1),(0,255,0))
@@ -230,95 +240,104 @@ def realtimeastar():
                 f[0].putpixel((p + p + 2,g + g + 1),(0,255,0))
                 p=p + 1
                 f[0].putpixel((p + p + 1,g + g + 1),(0,255,0))
-            if f[1][i][j][2]==0:
-                f[0].putpixel((j + j + 1,i + i),(0,255,0))
-                i=i - 1
-                f[0].putpixel((j + j + 1,i + i + 1),(0,255,0))
-            elif f[1][i][j][2]==1:
-                f[0].putpixel((j + j + 1,i + i + 2),(0,255,0))
-                i=i + 1
-                f[0].putpixel((j + j + 1,i + i + 1),(0,255,0))
-            elif f[1][i][j][2]==2:
-                f[0].putpixel((j + j,i + i + 1),(0,255,0))
-                j=j - 1
-                f[0].putpixel((j + j + 1,i + i + 1),(0,255,0))
+            if f[1][i1][j1][2]==0:
+                f[0].putpixel((j1 + j1 + 1,i1 + i1),(0,255,0))
+                i1=i1 - 1
+                f[0].putpixel((j1 + j1 + 1,i1 + i1 + 1),(0,255,0))
+            elif f[1][i1][j1][2]==1:
+                f[0].putpixel((j1 + j1 + 1,i1 + i1 + 2),(0,255,0))
+                i1=i1 + 1
+                f[0].putpixel((j1 + j1 + 1,i1 + i1 + 1),(0,255,0))
+            elif f[1][i1][j1][2]==2:
+                f[0].putpixel((j1 + j1,i1 + i1 + 1),(0,255,0))
+                j1=j1 - 1
+                f[0].putpixel((j1 + j1 + 1,i1 + i1 + 1),(0,255,0))
             else:
-                f[0].putpixel((j + j + 2,i + i + 1),(0,255,0))
-                j=j + 1
-                f[0].putpixel((j + j + 1,i + i + 1),(0,255,0))
-            spots.pop(y)
-            spots.append((i,j))
-            spots.append((h,k))
+                f[0].putpixel((j1 + j1 + 2,i1 + i1 + 1),(0,255,0))
+                j1=j1 + 1
+                f[0].putpixel((j1 + j1 + 1,i1 + i1 + 1),(0,255,0))
+            spots.pop(y1)
+            spots.append((i1,j1))
+            spots.append((l, m))
             spots.append((g,p))
-            u=min([(heurestic((i,j)),(i,j)),(heurestic((h,k)),(h,k)),(heurestic((g,p)),(g,p))],
-                    key=lambda r: r[0])
-            i,j=u[1]
-            y=-1
-    path=[lf[y]]
-    d=tree[lf[y]]
-    while d !=None:
-        path.append(d)
+            u=min([(heurestic((i1,j1)),(i1,j1)), (heurestic((l, m)), (l, m)), (heurestic((g, p)), (g, p))],
+                  key=lambda r: r[0])
+            i1,j1=u[1]
+            y1=-1
+
+    path=[lf[y1]]
+    d=tree[lf[y1]]
+    while True:
+        path.append(d) #(0,0) is always appended, but in most cases is it removed later from path
+        if d == tree[d]:
+            if len(f[1][0][0])>1: #Appended twice so that if it is a fork it actually stays
+                path.append(d)
+            break
         d=tree[d]
+
     path=path[::-1]
+    print(path)
     path=path[1:]
+    print(path)
     actual=[]
-    for x in range(len(path) - 1):
-        d=traverse(path[x])
-        t=d.index(path[x + 1])
-        actual.append(f[1][path[x][0]][path[x][1]][t])
+    for x1 in range(len(path) - 1):
+        d=traverse(path[x1])
+        t=d.index(path[x1 + 1])
+        actual.append(f[1][path[x1][0]][path[x1][1]][t])
     d=traverse(path[-1])
     t=d.index((len(f[1]) - 1,len(f[1]) - 1))
     actual.append(f[1][path[-1][0]][path[-1][1]][t])
-    for i in range(1,n*2+1):
-        for j in range(1,n*2+1):
-            d=f[0].getpixel((i,j))
+    print(actual)
+    for i1 in range(1,n*2+1):
+        for j1 in range(1,n*2+1):
+            d=f[0].getpixel((i1,j1))
             if d==(0,255,0):
-                f[0].putpixel((i,j),(255,255,255))
-    i=0
-    j=0
-    while not (i==len(f[1])-1 and j==len(f[1])-1):
-        f[0].putpixel((j + j + 1,i + i + 1),(255,0,0))
-        if len(f[1][i][j])==1:
-            if f[1][i][j][0]==0:
-                f[0].putpixel((j + j + 1,i + i),(255,0,0))
-                i=i - 1
-                f[0].putpixel((j + j + 1,i + i + 1),(255,0,0))
-            elif f[1][i][j][0]==1:
-                f[0].putpixel((j + j + 1,i + i + 2),(255,0,0))
-                i=i + 1
-                f[0].putpixel((j + j + 1,i + i + 1),(255,0,0))
-            elif f[1][i][j][0]==3:
-                f[0].putpixel((j + j + 2,i + i + 1),(255,0,0))
-                j=j + 1
-                f[0].putpixel((j + j + 1,i + i + 1),(255,0,0))
+                f[0].putpixel((i1,j1),(255,255,255))
+    i1=0
+    j1=0
+    while not (i1==len(f[1])-1 and j1==len(f[1])-1):
+        f[0].putpixel((j1 + j1 + 1,i1 + i1 + 1),(255,0,0))
+        if len(f[1][i1][j1])==1:
+            if f[1][i1][j1][0]==0:
+                f[0].putpixel((j1 + j1 + 1,i1 + i1),(255,0,0))
+                i1=i1 - 1
+                f[0].putpixel((j1 + j1 + 1,i1 + i1 + 1),(255,0,0))
+            elif f[1][i1][j1][0]==1:
+                f[0].putpixel((j1 + j1 + 1,i1 + i1 + 2),(255,0,0))
+                i1=i1 + 1
+                f[0].putpixel((j1 + j1 + 1,i1 + i1 + 1),(255,0,0))
+            elif f[1][i1][j1][0]==3:
+                f[0].putpixel((j1 + j1 + 2,i1 + i1 + 1),(255,0,0))
+                j1=j1 + 1
+                f[0].putpixel((j1 + j1 + 1,i1 + i1 + 1),(255,0,0))
             else:
-                f[0].putpixel((j + j,i + i + 1),(255,0,0))
-                j=j - 1
-                f[0].putpixel((j + j + 1,i + i + 1),(255,0,0))
+                f[0].putpixel((j1 + j1,i1 + i1 + 1),(255,0,0))
+                j1=j1 - 1
+                f[0].putpixel((j1 + j1 + 1,i1 + i1 + 1),(255,0,0))
         else:
-            f[0].putpixel((j + j + 1,i + i + 1),(255,0,0))
+            f[0].putpixel((j1 + j1 + 1,i1 + i1 + 1),(255,0,0))
             if actual[0]==0:
-                f[0].putpixel((j + j + 1,i + i),(255,0,0))
-                i=i - 1
-                f[0].putpixel((j + j + 1,i + i + 1),(255,0,0))
+                f[0].putpixel((j1 + j1 + 1,i1 + i1),(255,0,0))
+                i1=i1 - 1
+                f[0].putpixel((j1 + j1 + 1,i1 + i1 + 1),(255,0,0))
             elif actual[0]==1:
-                f[0].putpixel((j + j + 1,i + i + 2),(255,0,0))
-                i=i + 1
-                f[0].putpixel((j + j + 1,i + i + 1),(255,0,0))
+                f[0].putpixel((j1 + j1 + 1,i1 + i1 + 2),(255,0,0))
+                i1=i1 + 1
+                f[0].putpixel((j1 + j1 + 1,i1 + i1 + 1),(255,0,0))
             elif actual[0]==3:
-                f[0].putpixel((j + j + 2,i + i + 1),(255,0,0))
-                j=j + 1
-                f[0].putpixel((j + j + 1,i + i + 1),(255,0,0))
+                f[0].putpixel((j1 + j1 + 2,i1 + i1 + 1),(255,0,0))
+                j1=j1 + 1
+                f[0].putpixel((j1 + j1 + 1,i1 + i1 + 1),(255,0,0))
             else:
-                f[0].putpixel((j + j,i + i + 1),(255,0,0))
-                j=j - 1
-                f[0].putpixel((j + j + 1,i + i + 1),(255,0,0))
+                f[0].putpixel((j1 + j1,i1 + i1 + 1),(255,0,0))
+                j1=j1 - 1
+                f[0].putpixel((j1 + j1 + 1,i1 + i1 + 1),(255,0,0))
             actual.pop(0)
-    for i in range(1,n*2+1):
-        for j in range(1,n*2+1):
-            d=f[0].getpixel((i,j))
+    for i1 in range(1,n*2+1):
+        for j1 in range(1,n*2+1):
+            d=f[0].getpixel((i1,j1))
             if d==(0,255,0) or d==(50,50,50):
-                f[0].putpixel((i,j),(255,255,255))
+                f[0].putpixel((i1,j1),(255,255,255))
     placeimg()
     win.update()
     win.update_idletasks()
