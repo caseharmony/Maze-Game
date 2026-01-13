@@ -11,6 +11,9 @@ import pywinstyles
 import os
 
 def traverse(something):
+    #first thing in forks - found by going down first path
+    #second thing in forks - found by going down second path
+    #and so on
     global f
     forks = []
     o, p = something
@@ -24,6 +27,7 @@ def traverse(something):
         r = r - 1
     else:
         r = r + 1
+
     try:
         if f[1][o][p][1] == 0:
             o = o - 1
@@ -34,7 +38,9 @@ def traverse(something):
         else:
             p = p + 1
     except IndexError:
-        pass
+        print(o,p,'seems like that was not a fork')
+
+
     while True:
         if f[1][q][r][0] == -2:
             break
@@ -42,6 +48,7 @@ def traverse(something):
             break
         elif q == len(f[1]) - 1 == r:
             break
+        #print(g,f,'pointer',maze[g][f])
         if f[1][q][r][0] == 0:
             q = q - 1
         elif f[1][q][r][0] == 1:
@@ -58,6 +65,7 @@ def traverse(something):
             break
         elif o == len(f[1]) - 1 == p:
             break
+        #print(h,k,'pointer',maze[h][k])
         if f[1][o][p][0] == 0:
             o = o - 1
         elif f[1][o][p][0] == 1:
@@ -84,6 +92,7 @@ def traverse(something):
                 break
             elif o == len(f[1]) - 1 == p:
                 break
+            #print(h,k,'pointer',maze[h][k])
             if f[1][o][p][0] == 0:
                 o = o - 1
             elif f[1][o][p][0] == 1:
@@ -101,7 +110,7 @@ def heurestic(a):
 def realtimeastar():
     global f
     spots=[(0,0)]
-    tree={(0,0): (0,0)}
+    tree={(0,0): (0,0)} #New arrangement safeguards against the origin being a fork. We treat it kind of like a pseudo fork (weather it is or not) that points to itself
     lf=[(0,0)]
     i1,j1=0,0
     y1=0
@@ -147,6 +156,7 @@ def realtimeastar():
             l,m=i1,j1
             d=lf.pop(y1)
             tree[(i1,j1)]=d
+            #print(tree[(0,0)],'we are at a fork now',i1,j1)
             lf.append((i1,j1))
             lf.append((i1,j1))
             if f[1][i1][j1][0]==0:
@@ -194,6 +204,7 @@ def realtimeastar():
             g,p=i1,j1
             d=lf.pop(y1)
             tree[(i1,j1)]=d
+            #print(tree[(0,0)],'we are at a triplet now',i1,j1)
             lf.append((i1,j1))
             lf.append((i1,j1))
             lf.append((i1,j1))
@@ -253,17 +264,21 @@ def realtimeastar():
                   key=lambda r: r[0])
             i1,j1=u[1]
             y1=-1
+
     path=[lf[y1]]
     d=tree[lf[y1]]
     while True:
-        path.append(d)
+        path.append(d) #(0,0) is always appended, but in most cases is it removed later from path
         if d == tree[d]:
-            if len(f[1][0][0])>1:
+            if len(f[1][0][0])>1: #Appended twice so that if it is a fork it actually stays
                 path.append(d)
             break
         d=tree[d]
+
     path=path[::-1]
+    print(path)
     path=path[1:]
+    print(path)
     actual=[]
     for x1 in range(len(path) - 1):
         d=traverse(path[x1])
@@ -272,6 +287,7 @@ def realtimeastar():
     d=traverse(path[-1])
     t=d.index((len(f[1]) - 1,len(f[1]) - 1))
     actual.append(f[1][path[-1][0]][path[-1][1]][t])
+    print(actual)
     for i1 in range(1,n*2+1):
         for j1 in range(1,n*2+1):
             d=f[0].getpixel((i1,j1))
@@ -547,15 +563,9 @@ def solvemaze():
 def genm():
     reset()
     pmazegame()
-    global f,n,x,y,emazesize,lock,bgenmaze,moves
-    moves=[]
-    bgenmaze.configure(state="disabled")
+    global f,n,x,y,emazesize,lock
     if emazesize.get()=='':
         emazesize.insert(0,'30')
-    if not lock:
-        ltimer.configure(text='00:00:-1')
-    else:
-        ltimer.configure(text='00:00:00')
     lock=False
     x,y=1,1
     n=int(emazesize.get())
@@ -569,13 +579,12 @@ def genm():
     placeimg()
     ptimer()
     timer()
-    win.after(1000,lambda: bgenmaze.configure(state="normal"))
     emazesize.configure(state="readonly")
 
 def left(event):
     if lock:
         return
-    global x,emazesize,moves
+    global x,emazesize
     x=x - 1
     r,g,b=f[0].getpixel((x,y))
     if x==n * 2 - 1 and y==n * 2 - 1:
@@ -589,14 +598,13 @@ def left(event):
         f[0].putpixel((x,y),(255,0,0))
     else:
         f[0].putpixel((x + 1,y),(255,255,255))
-    moves.append('l')
     c1.play(mk.Sound(os.path.dirname(__file__)+"\\move.wav"))
     placeimg()
 
 def right(event):
     if lock:
         return
-    global x,emazesize,moves
+    global x,emazesize
     x=x + 1
     r,g,b=f[0].getpixel((x,y))
     if x==n * 2 - 1 and y==n * 2 - 1:
@@ -610,14 +618,13 @@ def right(event):
         f[0].putpixel((x,y),(255,0,0))
     else:
         f[0].putpixel((x - 1,y),(255,255,255))
-    moves.append('r')
     c1.play(mk.Sound(os.path.dirname(__file__)+"\\move.wav"))
     placeimg()
 
 def up(event):
     if lock:
         return
-    global y,emazesize,moves
+    global y,emazesize
     y=y - 1
     if x==n * 2 - 1 and y==n * 2 - 1:
         pwinnerbox()
@@ -631,14 +638,13 @@ def up(event):
         f[0].putpixel((x,y),(255,0,0))
     else:
         f[0].putpixel((x,y + 1),(255,255,255))
-    moves.append('u')
     c1.play(mk.Sound(os.path.dirname(__file__)+"\\move.wav"))
     placeimg()
 
 def down(event):
     if lock:
         return
-    global y,emazesize,moves
+    global y,emazesize
     y=y + 1
     if x==n * 2 - 1 and y==n * 2 - 1:
         pwinnerbox()
@@ -652,34 +658,8 @@ def down(event):
         f[0].putpixel((x,y),(255,0,0))
     else:
         f[0].putpixel((x,y - 1),(255,255,255))
-    moves.append('d')
     c1.play(mk.Sound(os.path.dirname(__file__)+"\\move.wav"))
     placeimg()
-
-def replay():
-    fmazegame.lift()
-    global x,y,emazesize,f,lock,breplay
-    breplay.configure(state="readonly")
-    lock=True
-    f[0]=f[2].copy()
-    x,y=1,1
-    for i in moves:
-        ox,oy=x,y
-        if i=='l': x-=1
-        elif i=='r': x+=1
-        elif i=='u': y-=1
-        elif i=='d': y+=1
-        c=f[0].getpixel((x,y))
-        if c[2]==255:
-            f[0].putpixel((x,y),(255,0,0))
-        else:
-            f[0].putpixel((ox, oy), (255,255,255))
-        placeimg()
-        win.update()
-        win.after(10)
-    lock=False
-    timer()
-    breplay.configure(state="normal")
 
 #AUDIO AND TIMER FUNCTIONS
 
@@ -697,10 +677,7 @@ def sfx():
 
 def timer():
     if not lock:
-        time=ltimer.cget("text")
-        if time=="00:00:-1":
-            ltimer.configure(text='00:00:00')
-            return
+        time = ltimer.cget("text")
         h,m,s=map(int,time.split(':'))
         s+=1
         if s==60:
@@ -712,7 +689,7 @@ def timer():
         time=f"{h:02d}:{m:02d}:{s:02d}"
         ltimer.configure(text=time)
         win.after(1000, timer)
-    
+
 #LOGIN AND SIGNUP PAGES LAYOUTS AND FUNCTIONS
 
 def pname():
@@ -758,11 +735,11 @@ def checkotp():
     global fotp
     eotp=str(eotp1.get() + eotp2.get() + eotp3.get() + eotp4.get() + eotp5.get() + eotp6.get())
     if eotp==otpcode:
-        messagebox("OTP Verified")
+        print("OTP Verified")
         fotp.grid_forget()
         ppassword()
     else:
-        messagebox("Invalid OTP")
+        print("Invalid OTP")
 
 def potp():
     global otpcode,femail
@@ -940,7 +917,6 @@ def pmazecontrols():
     bfilesave.grid(row=7,column=11,padx=20,pady=10,columnspan=10,sticky="ew")
     bsaveimgs.grid(row=8,column=11,padx=20,pady=10,columnspan=10,sticky="ew")
     bsaveimguns.grid(row=9,column=11,padx=20,pady=10,columnspan=10,sticky="ew")
-    breplay.grid(row=10,column=11,padx=20,pady=10,columnspan=10,sticky="ew")
     fsettings.grid(row=0,column=11,padx=20,pady=(100,20),columnspan=10,rowspan=10,sticky="ne")
     psettings()
     fmazecontrols.lift()
@@ -958,6 +934,8 @@ def psettings():
     sbmazealg.grid(row=1,column=16,padx=20,pady=10,columnspan=5,sticky="w")
     lsolvealg.grid(row=2,column=11,padx=20,pady=0,columnspan=5,sticky="w")
     sbsolvealg.grid(row=2,column=16,padx=20,pady=10,columnspan=5,sticky="w")
+    lsavefiletype.grid(row=3,column=11,padx=20,pady=0,columnspan=5,sticky="w")
+    sbsavefileloc.grid(row=3,column=16,padx=20,pady=10,columnspan=5,sticky="w")
     smovemode.grid(row=4,column=11,padx=20,pady=10,columnspan=5,sticky="w")
     smusic.grid(row=5,column=11,padx=20,pady=10,columnspan=5,sticky="w")
     slmusvol.grid(row=5,column=16,padx=20,pady=10,columnspan=5,sticky="w")
@@ -982,94 +960,69 @@ def trophyupdate(frame):
     nextindex=(frame + 1) % len(trophyframes)
     win.after(duration,trophyupdate,nextindex)
 
-def makefile(maze,moves,time):
-    file=str(maze)+"||||"+str(moves)+"||||"+time
+def makefile(maze,playermoves,time):
+    file=str(maze)+"||||"+str(playermoves)+"||||"+time
     return file
 
 def breakfile(file):
-    global f,n,x,y,lock,lmazepic,ffilemanager,moves
-    maze,moves,time=file.split("||||")
+    global f,n,x,y,lock,lmazepic
+    maze,playermoves,time=file.split("||||")
     maze=eval(maze)
-    moves=eval(moves)
-    n=(len(maze)*2)
+    n=len(maze)*2
     image = Image.new('RGB', (n + 1, n + 1), color=(0, 0, 0))
-    i = 0
-    j = 0
+    ti = 0
+    tj = 0
     for ci in range(1, n, 2):
-        j = 0
+        tj = 0
         for cj in range(1, n, 2):
             image.putpixel((cj, ci), (255, 255, 255))
-            for g in range(len(maze[i][j])):
-                if maze[i][j][g] == 0:
+            for g in range(len(maze[ti][tj])):
+                if maze[ti][tj][g] == 0:
                     image.putpixel((cj, ci - 1), (255, 255, 255))
-                elif maze[i][j][g] == 1:
+                elif maze[ti][tj][g] == 1:
                     image.putpixel((cj, ci + 1), (255, 255, 255))
-                elif maze[i][j][g] == 2:
+                elif maze[ti][tj][g] == 2:
                     image.putpixel((cj - 1, ci), (255, 255, 255))
-                elif maze[i][j][g] == 3:
+                elif maze[ti][tj][g] == 3:
                     image.putpixel((cj + 1, ci), (255, 255, 255))
-            j = j + 1
-        i = i + 1
-    image.putpixel((n - 1, n - 1), (0, 255, 0))
-    image.putpixel((1, 1), (255, 0, 0))
-    n=int(n/2)
+            tj = tj + 1
+        ti = ti + 1
+    image.putpixel((1,1),(255,0,0))
+    image.putpixel((n-1,n-1),(0,255,0))
+    global f
     f=[image,maze]
     reset()
     pmazegame()
-    bgenmaze.configure(state="disabled")
-    if not lock:
-        ltimer.configure(text='00:00:-1')
-    else:
-        ltimer.configure(text='00:00:00')
     lock=False
     x,y=1,1
-    f.append(f[0].copy())
     lmazepicl.grid(row=0,column=0,padx=10,pady=10)
-    ffilemanager.grid_forget()
-    replay()
-    ltimer.configure(text=time)
-    win.after(1000,lambda: bgenmaze.configure(state="normal"))
+    placeimg()
+    ptimer()
+    timer()
     emazesize.configure(state="readonly")
 
 def savelocal():
-    if f==[]:
-        messagebox("Generate Maze First")
+    file=makefile(f[1],f[0],ltimer.cget("text"))
+    path=filedialog.asksaveasfilename(initialdir="/",title="Save File As",initialfile=euploadname.get(),defaultextension=".maze")
+    if not path:
         return
-    file=makefile(f[1],moves,ltimer.cget("text"))
-    try:
-        path=filedialog.asksaveasfilename(initialdir="/",title="Save File As",initialfile=euploadname.get(),defaultextension=".maze")
-        if not path:
-            return
-        with open(path, "w") as txt:
-            txt.write(file)
-        messagebox(f"File successfully saved to:\n{path}")
-    except:
-        pass
-
-def openlocal():
-    try:
-        with open(filedialog.askopenfilename(title="Select a File",initialdir="/",filetypes=(("maze files", "*.maze"),("All files", "*.*"))), 'r') as txt:
-            file = txt.read()
-        breakfile(file)
-    except:
-        pass
+    with open(path, "w") as txt:
+        txt.write(file)
+    messagebox(f"File successfully saved to:\n{path}")
 
 def savecloud():
-    if f==[]:
-        messagebox("Generate Maze First")
-        return
-    file=makefile(f[1],moves,ltimer.cget("text"))
-    if exportsave(account, euploadname.get(), file):
-        messagebox("File successfully saved to Cloud")
-    else:
-        messagebox("A File of The Given Name Already Exists\nSelect a Different Name")
+    pass
 
 def opencloud():
     file=importsave(account,vgetcloud.get())
     breakfile(file)
 
+def openlocal():
+    with open(filedialog.askopenfilename(title="Select a File",initialdir="/",filetypes=(("maze files", "*.maze"),("All files", "*.*"))), 'r') as txt:
+        file = txt.read()
+    breakfile(file)
+
 def pfilemanager():
-    global ffilemanager
     ffilemanager=tk.CTkFrame(master=win,corner_radius=20)
     lfilemanager=tk.CTkLabel(ffilemanager,text="File Manager:",font=tk.CTkFont(size=30,weight="bold"))
     lsave=tk.CTkLabel(ffilemanager,text="Save file:",font=tk.CTkFont(size=20,weight="bold"))
@@ -1120,7 +1073,7 @@ def messagebox(text):
 
 #MAIN WINDOW SETUP
 
-moves,account,lock,n,x,y,f,h,w=[],"defaultacc",True,0,1,1,[],1,1
+account,lock,n,x,y,f,h,w="defaultacc",True,0,1,1,[],1,1
 mk.pre_init(44100, -16, 2, 2048)
 mk.init()
 mk.set_num_channels(2)
@@ -1145,6 +1098,7 @@ bsignup=tk.CTkButton(flogin,corner_radius=30,fg_color='transparent',hover=False,
 blogin=tk.CTkButton(flogin,corner_radius=30,text="login",command=dlogin)
 ilogo=tk.CTkImage(dark_image=Image.open(os.path.dirname(__file__)+"\\im2.png"),size=(300,300))
 
+
 #MAZE WINDOW SETUP
 
 fmazegame=tk.CTkFrame(master=win,corner_radius=20)
@@ -1167,7 +1121,6 @@ lsavefiletxt=tk.CTkLabel(fmazecontrols,text="Saving and Exporting:",font=tk.CTkF
 bsaveimgs=tk.CTkButton(fmazecontrols,corner_radius=30,text="export unsoved maze to image",command=lambda: f[2].resize((1080,1080),Image.NONE).save(filedialog.asksaveasfilename(initialdir="/",title="Save File As",initialfile="output",defaultextension=sbimgtype.get())))
 bsaveimguns=tk.CTkButton(fmazecontrols,corner_radius=30,text="export solved maze to image",command=lambda: f[3].resize((1080,1080),Image.NONE).save(filedialog.asksaveasfilename(initialdir="/",title="Save File As",initialfile="output",defaultextension=sbimgtype.get())))
 bfilesave=tk.CTkButton(fmazecontrols,corner_radius=30,text="Open File Manager",command=pfilemanager,width=155)
-breplay=tk.CTkButton(fmazecontrols,corner_radius=30,text="replay",command=replay,width=325)
 win.bind("<Left>",left)
 win.bind("<Right>",right)
 win.bind("<Up>",up)
@@ -1176,8 +1129,8 @@ win.bind("<Down>",down)
 ftimer=tk.CTkFrame(master=win,corner_radius=20)
 ltime=tk.CTkLabel(ftimer,text="Your Time:",font=tk.CTkFont(size=15,weight="bold"))
 ltimer=tk.CTkLabel(ftimer,text="00:00:00",font=tk.CTkFont(size=90,weight="bold"))
-
 #SETTINGS PAGE SETUP
+
 
 isettings=tk.CTkImage(dark_image=Image.open(os.path.dirname(__file__)+"\\settings.png"),size=(50,50))
 fsettings=tk.CTkFrame(master=win,corner_radius=20,width=300,bg_color="#000001",fg_color="#363636")
@@ -1213,6 +1166,9 @@ sbmazealg.set("Primz")
 lsolvealg=tk.CTkLabel(fsettings,text="Select Maze Solver:",font=tk.CTkFont(size=12))
 sbsolvealg=tk.CTkSegmentedButton(fsettings,values=["AStar","Brute Force"],corner_radius=30)
 sbsolvealg.set("AStar")
+lsavefiletype=tk.CTkLabel(fsettings,text="Select Save File Location:",font=tk.CTkFont(size=12))
+sbsavefileloc=tk.CTkSegmentedButton(fsettings,values=["Your PC","Cloud"],corner_radius=30)
+sbsavefileloc.set("Cloud")
 smovemode=tk.CTkSwitch(fsettings,text="Move to next node",variable=movemode,onvalue="on",offvalue="off")
 smusic=tk.CTkSwitch(fsettings,text="background music",variable=musicmode,command=music,onvalue="on",offvalue="off")
 ssfx=tk.CTkSwitch(fsettings,text="sound effects",variable=sfxmode,command=sfx,onvalue="on",offvalue="off")
