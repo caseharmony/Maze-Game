@@ -9,7 +9,7 @@ from PIL import Image
 from pygame import mixer as mk
 import pywinstyles
 import os
-
+from time import sleep
 
 def traverse(something):
     global f
@@ -109,6 +109,8 @@ def realtimeastar():
     i1, j1 = 0, 0
     y1 = 0
     while not (i1 == len(f[1]) - 1 and j1 == len(f[1]) - 1):
+        if not solving:
+            return
         placeimg()
         win.update()
         win.update_idletasks()
@@ -278,7 +280,7 @@ def realtimeastar():
     for i1 in range(1, n * 2 + 1):
         for j1 in range(1, n * 2 + 1):
             d = f[0].getpixel((i1, j1))
-            if d == (0, 255, 0):
+            if d == (0, 255, 0) or d == (255, 0, 0):
                 f[0].putpixel((i1, j1), (255, 255, 255))
     i1 = 0
     j1 = 0
@@ -337,6 +339,8 @@ def realtimebruteforce():
     path = []
     f[0].putpixel((1, 1), (0, 255, 0))
     while not (i == len(f[1]) - 1 and j == len(f[1]) - 1):
+        if not solving:
+            return
         if f[1][i][j][0] == -2:
             i = forkprocessor[- 3]
             j = forkprocessor[- 2]
@@ -436,6 +440,11 @@ def realtimebruteforce():
     for i in range(len(path) - 1, -1, -1):
         if not ((i + 1) % 3 == 0):
             path.pop(i)
+    for i in range(1, n * 2 + 1):
+        for j in range(1, n * 2 + 1):
+            d = f[0].getpixel((i, j))
+            if d == (0, 255, 0) or d == (50, 50, 50) or d==(255,0,0):
+                f[0].putpixel((i, j), (255, 255, 255))
     i = 0
     j = 0
     while not (i == len(f[1]) - 1 and j == len(f[1]) - 1):
@@ -468,11 +477,6 @@ def realtimebruteforce():
                 f[0].putpixel((j + j, i + i + 1), (255, 0, 0))
                 j = j - 1
             path.pop(0)
-    for i in range(1, n * 2 + 1):
-        for j in range(1, n * 2 + 1):
-            d = f[0].getpixel((i, j))
-            if d == (0, 255, 0) or d == (50, 50, 50):
-                f[0].putpixel((i, j), (255, 255, 255))
     f[0].putpixel((n * 2 - 1, n * 2 - 1), (255, 0, 0))
     placeimg()
     win.update()
@@ -536,23 +540,30 @@ def reset():
 
 
 def realtimesolver():
+    global solving
     if f == []:
         messagebox("Generate Maze First")
         return
     global zoommode
-    if lock:
+    if lock or solving:
         return
     lockmaze()
+    solving = True
     x = zoommode
     zoommode = tk.StringVar(value="off")
     if sbsolvealg.get() == 'AStar':
         realtimeastar()
     else:
         realtimebruteforce()
+    solving = False
     zoommode = x
 
 
 def solvemaze():
+    global solving
+    if solving:
+        solving = False
+        sleep(0.15)
     global zoommode
     if f == []:
         messagebox("Generate Maze First")
@@ -566,6 +577,8 @@ def solvemaze():
 
 
 def genm():
+    if solving:
+        return
     reset()
     pmazegame()
     global f, n, x, y, emazesize, lock, bgenmaze, moves
@@ -586,7 +599,7 @@ def genm():
         f = mazegenerate(n)
     else:
         f = prim(n)
-    f.append(f[0].copy())
+    f.append(f[0].copy()) # f = [working_copy,maze,original_image,solved_maze]
     f.append(mazessolve(f[1], f[0]))
     f[0] = f[2].copy()
     global lmazepic
@@ -692,6 +705,8 @@ def down(event):
 
 
 def replay():
+    if solving:
+        return
     global x, y, emazesize, f, lock, breplay
     breplay.configure(state="readonly")
     tt = ltimer.cget("text")
@@ -1053,7 +1068,7 @@ def psettings():
 
 def pfilemanager():
     global ffilemanager
-    ffilemanager = tk.CTkFrame(master=win, corner_radius=20)
+    ffilemanager = tk.CTkScrollableFrame(master=win, corner_radius=20)
     lfilemanager = tk.CTkLabel(ffilemanager, text="File Manager:", font=tk.CTkFont(size=30, weight="bold"))
     lsave = tk.CTkLabel(ffilemanager, text="Save file:", font=tk.CTkFont(size=20, weight="bold"))
     global euploadname
@@ -1247,6 +1262,7 @@ def messagebox(text):
 #MAIN WINDOW SETUP
 
 moves, account, lock, n, x, y, f, h, w = [], "defaultacc", True, 0, 1, 1, [], 1, 1
+solving = False
 mk.pre_init(44100, -16, 2, 2048)
 mk.init()
 mk.set_num_channels(2)
