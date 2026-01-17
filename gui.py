@@ -11,6 +11,7 @@ import pywinstyles
 import os
 from time import sleep
 
+
 def traverse(something):
     global f
     forks = []
@@ -443,7 +444,7 @@ def realtimebruteforce():
     for i in range(1, n * 2 + 1):
         for j in range(1, n * 2 + 1):
             d = f[0].getpixel((i, j))
-            if d == (0, 255, 0) or d == (50, 50, 50) or d==(255,0,0):
+            if d == (0, 255, 0) or d == (50, 50, 50) or d == (255, 0, 0):
                 f[0].putpixel((i, j), (255, 255, 255))
     i = 0
     j = 0
@@ -527,7 +528,7 @@ def placeimg():
     if zoommode.get() == 'on':
         lmazepic = tk.CTkImage(dark_image=zoomimg().resize((1080, 1080), Image.NEAREST), size=(h, w))
     else:
-        lmazepic = tk.CTkImage(dark_image=f[0].resize((1080, 1080), Image.NONE), size=(h, w))
+        lmazepic = tk.CTkImage(dark_image=f[0].resize((1080, 1080), Image.Resampling.NEAREST), size=(h, w))
     lmazepicl.configure(image=lmazepic)
 
 
@@ -599,7 +600,7 @@ def genm():
         f = mazegenerate(n)
     else:
         f = prim(n)
-    f.append(f[0].copy()) # f = [working_copy,maze,original_image,solved_maze]
+    f.append(f[0].copy())  # f = [working_copy,maze,original_image,solved_maze]
     f.append(mazessolve(f[1], f[0]))
     f[0] = f[2].copy()
     global lmazepic
@@ -1230,9 +1231,15 @@ def saveimg():
     else:
         imgno = 3
     try:
-        f[imgno].resize((1080, 1080), Image.NONE).save(
-            filedialog.asksaveasfilename(initialdir="/", title="Save File As", initialfile="output",
-                                         defaultextension=sbimgtype.get()))
+        size = f[imgno].size()[0]
+        if size < 500:
+            f[imgno].resize((1080, 1080), Image.Resampling.NEAREST).save(
+                filedialog.asksaveasfilename(initialdir="/", title="Save File As", initialfile="output",
+                                             defaultextension=sbimgtype.get()))
+        else:
+            f[imgno].resize((size * 2, size * 2), Image.Resampling.NEAREST).save(
+                filedialog.asksaveasfilename(initialdir="/", title="Save File As", initialfile="output",
+                                             defaultextension=sbimgtype.get()))
     except:
         pass
 
