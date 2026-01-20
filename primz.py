@@ -2,11 +2,7 @@ import random
 from PIL import Image
 
 def removeall(x,ele):
-    y = []
-    for i in x:
-        if i != ele:
-            y.append(i)
-    return y
+    return [x for x in x if x != ele]
 
 
 maze = []
@@ -58,6 +54,13 @@ def prim(e):
         r = random.randint(0,len(options)-1)
         t = options[r]
         options = removeall(options,options[r])
+        '''p = 0
+        while p!=len(options):
+            if options[p]==t:
+                options[p] = options[-1]
+                options.pop()
+                p = p-1
+            p = p+1'''
         y = closest(t[0],t[1])
         options.extend(possible(t[0],t[1]))
         maze[t[0]][t[1]][0] = -2
