@@ -601,8 +601,9 @@ def genm():
     else:
         f = prim(n)
     f.append(f[0].copy())  # f = [working_copy,maze,original_image,solved_maze]
-    f.append(mazessolve(f[1], f[0]))
-    f[0] = f[2].copy()
+    f.append(f[0].copy())
+    f.append(mazessolve(f[1], f[3]))
+    #f[0] = f[2].copy()
     global lmazepic
     lmazepicl.grid(row=0, column=0, padx=10, pady=10)
     placeimg()
@@ -1230,14 +1231,14 @@ def saveimg():
         imgno = 2
     else:
         imgno = 3
+    sizee = (f[imgno].size)[0]
     try:
-        size = f[imgno].size()[0]
-        if size < 500:
+        if sizee < 500:
             f[imgno].resize((1080, 1080), Image.Resampling.NEAREST).save(
                 filedialog.asksaveasfilename(initialdir="/", title="Save File As", initialfile="output",
                                              defaultextension=sbimgtype.get()))
         else:
-            f[imgno].resize((size * 2, size * 2), Image.Resampling.NEAREST).save(
+            f[imgno].resize((sizee * 2, sizee * 2), Image.Resampling.NEAREST).save(
                 filedialog.asksaveasfilename(initialdir="/", title="Save File As", initialfile="output",
                                              defaultextension=sbimgtype.get()))
     except:
