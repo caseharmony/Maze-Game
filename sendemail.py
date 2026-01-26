@@ -1,8 +1,8 @@
 import smtplib
 import random
-def otp(recipient_email,appkey='mysm tpma ilap ikey'):
+def otp(recipient_email,appkey='x'):
     otp = str(random.randint(100000, 999999))
-    if appkey!='mysm tpma ilap ikey':
+    try:
         smtp=smtplib.SMTP('smtp.gmail.com', 587)
         smtp.starttls()
         smtp.login('mazegameotp@gmail.com',appkey)
@@ -14,5 +14,6 @@ def otp(recipient_email,appkey='mysm tpma ilap ikey'):
         msg=msg+otp
         smtp.sendmail("mazegameotp@gmail.com", recipient_email, msg)
         smtp.quit()
-    print(otp)
+    except:
+        print(otp)
     return otp

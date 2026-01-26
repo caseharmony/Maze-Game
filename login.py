@@ -1,35 +1,15 @@
 import bcrypt
 import mysql.connector as mc
 password="x"
-if password=="x":
-    db=mc.connect(host="localhost",user="root",password="sql123")
-    cur=db.cursor()
-    sql_script = """
-    CREATE DATABASE IF NOT EXISTS amazeing;
-    USE amazeing;
-    CREATE TABLE IF NOT EXISTS login(
-        gamertag VARCHAR(50),
-        password BLOB,
-        firstname VARCHAR(50),
-        lastname VARCHAR(50),
-        email VARCHAR(50)
-    );
-    """
-    cur.execute(sql_script)
-    db.commit()
-    db.close()
-    db=mc.connect(host="localhost",user="root",password="sql123",database="amazeing")
-    cur=db.cursor()
-else:
-    config = {
-    "user": "amazeing_involvedbe",
-    "password": password,
-    "host": "7ax81r.h.filess.io",
-    "port": 3307,
-    "database": "amazeing_involvedbe"
-    }
-    db=mc.connect(**config)
-    cur=db.cursor()
+config = {
+"user": "amazeing_involvedbe",
+"password": password,
+"host": "7ax81r.h.filess.io",
+"port": 3307,
+"database": "amazeing_involvedbe"
+}
+db=mc.connect(**config)
+cur=db.cursor()
 
 def login(username,password):
     db.ping(reconnect=True)
@@ -55,28 +35,29 @@ def signup(username,password,firstname,lastname,email):
 
 #FUNCTIONS FOR SAVE FILES
 
-def importsave(username,name):
-    cur.execute(f"SELECT * FROM {username}")
-    saves=dict(cur.fetchall())
-    file=saves[name]
-    return file
-
 def savefile(username):
     db.ping(reconnect=True)
-    cur.execute(f"CREATE TABLE IF NOT EXISTS {username} (name VARCHAR(50), file MEDIUMTEXT)")
-    db.commit()
-    cur.execute(f"SELECT name FROM {username}")
+    query = "SELECT savename FROM saves WHERE username = %s"
+    cur.execute(query, (username,))
     return [row[0] for row in cur.fetchall()]
+
+def importsave(username, name):
+    db.ping(reconnect=True)
+    query = "SELECT file FROM saves WHERE username = %s AND savename = %s"
+    cur.execute(query, (username, name))
+    result = cur.fetchone()
+    return result[0] if result else None
 
 def exportsave(username, name, file):
     db.ping(reconnect=True)
-    cur.execute(f"SELECT * FROM {username}")
-    savedb=list(cur.fetchall())
-    for i in savedb:
-        if name == i[0]:
-            return False
-    cur.execute(f"INSERT INTO {username} (name, file) VALUES (%s, %s)", (name, file))
+    query = """
+        INSERT INTO saves (username, savename, file) 
+        VALUES (%s, %s, %s)
+        ON DUPLICATE KEY UPDATE file = VALUES(file)
+    """
+    cur.execute(query, (username, name, file))
     db.commit()
-    return True
 
-
+def closedb():
+    cur.close()
+    db.close()
