@@ -584,6 +584,8 @@ def genm():
     except:
         emazesize.insert(0, '30')
         n = 30
+    if n>100000:
+        n = 30
     if sbmazealg.get() == 'DFS':
         f = mazegenerate(n)
     else:

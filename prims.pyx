@@ -4,19 +4,15 @@
 from PIL import Image
 from libcpp.vector cimport vector
 from libcpp.utility cimport pair
-from libc.stdlib cimport rand,srand
+from libcpp.random cimport mt19937
 from libcpp.random cimport random_device
 import numpy as np
 cimport numpy as np
 
 np.import_array()
-
-cdef void secure_seed():
-    cdef random_device rd
-    cdef unsigned int seed = rd()  
-    srand(seed)
-
-secure_seed()
+cdef random_device rd
+cdef unsigned int seed = rd()  
+cdef mt19937 rng = mt19937(seed)
 
 
 cdef void create_maze(int t):
@@ -65,7 +61,7 @@ cdef (int,int,int) closest(int i,int j):
         p.push_back((i,j-1,3))
     if j+1<n and maze[i][j+1][0]!=-1:
         p.push_back((i,j+1,2))
-    return p[rand() % p.size()]
+    return p[rng() % p.size()]
 
 cdef void prims(int e):
     global maze,n
@@ -75,7 +71,7 @@ cdef void prims(int e):
     #maze = [[[-1] for _ in range(n)] for _ in range(n)]
     #visited = [(0,0)]
     cdef vector[pair[int,int]] options = possible(0,0)
-    if rand()%2==0:
+    if rng()%2==0:
         maze[0][0][0] = 3
         maze[0][1][0] = -2
         options = removeall(options,(0,1))
@@ -92,7 +88,7 @@ cdef void prims(int e):
     cdef (int,int,int) y
     cdef int temp
     while options.size()!=0:
-        r = rand() % options.size()
+        r = rng() % options.size()
         t = options[r]
         temp = 0
         while temp!=options.size():

@@ -1,7 +1,7 @@
 import smtplib
-import random
-def otp(recipient_email,appkey='x'):
-    otp = str(random.randint(100000, 999999))
+import secrets
+def otp(recipient_email,appkey='mysm tpap ikey'):
+    otp = str(secrets.randbelow(900000)+100000)
     try:
         smtp=smtplib.SMTP('smtp.gmail.com', 587)
         smtp.starttls()

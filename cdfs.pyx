@@ -4,17 +4,18 @@
 from PIL import Image
 from libcpp.vector cimport vector
 from libcpp.random cimport random_device
+from libcpp.random cimport mt19937
 from libc.stdlib cimport rand,srand
 import numpy as np
 cimport numpy as np
 
 np.import_array()
-cdef void secure_seed():
-    cdef random_device rd
-    cdef unsigned int seed = rd()  
-    srand(seed)
+cdef random_device rd
+cdef unsigned int seed = rd()  
+cdef mt19937 rng = mt19937(seed)
 
-secure_seed()
+
+
 
 cdef vector[vector[vector[int]]] maze
 cdef int n = 0
@@ -99,7 +100,7 @@ cdef void mazegeneratee(int e):
                     check = False
             else:
                 break
-        temp = arr[rand() % arr.size()]
+        temp = arr[rng() % arr.size()]
         if maze[i][j][0] == -1:
             maze[i][j][0] = temp
         else:
