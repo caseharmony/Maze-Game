@@ -1,6 +1,7 @@
 import bcrypt
 import mysql.connector as mc
-password="x"
+import os
+password=os.getenv('DB_KEY')
 config = {
 "user": "amazeing_involvedbe",
 "password": password,
