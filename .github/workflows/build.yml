@@ -45,6 +45,7 @@ jobs:
           lto: yes
           disable-console: true
           enable-plugins: tk-inter
+          nofollow-import-to: "*.vendor.plugin"
           # Ensure Nuitka uses the right compiler on Windows
           mingw64: ${{ matrix.os == 'windows-latest' }}
           # Dependencies and Assets
