@@ -41,10 +41,10 @@ jobs:
         with:
           nuitka-version: main
           script-name: gui.py # Change to your main entry file
-          onefile: true
+          mode: onefile
           lto: yes
           disable-console: true
-          enable-plugin: tk-inter
+          enable-plugins: tk-inter
           # Ensure Nuitka uses the right compiler on Windows
           mingw64: ${{ matrix.os == 'windows-latest' }}
           # Dependencies and Assets
