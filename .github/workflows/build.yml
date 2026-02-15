@@ -4,8 +4,10 @@ on: [push, workflow_dispatch]
 jobs:
   build:
     strategy:
+      fail-fast: false 
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        # 1. Use ubuntu-20.04 for better Linux compatibility (older GLIBC)
+        os: [ubuntu-20.04, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -18,13 +20,14 @@ jobs:
           python-version: '3.12'
 
       - name: Install System Dependencies
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-latest' || matrix.os == 'ubuntu-20.04'
         run: |
           sudo apt-get update
-          sudo apt-get install -y python3-tk libtk8.6 g++
+          sudo apt-get install -y python3-tk libtk8.6 g++ libwayland-client0
 
       - name: Install Python Requirements
         run: |
+          python -m pip install --upgrade pip
           pip install setuptools nuitka zstandard cython numpy
           pip install customtkinter pillow pygame pywinstyles bcrypt mysql-connector-python
 
@@ -33,22 +36,29 @@ jobs:
           python setup.py build_ext --inplace
 
       - name: Build with Nuitka
-        # Injecting your Repository Secrets into the Environment
         env:
           DB_KEY: ${{ secrets.DB_KEY }}
           EMAIL_USER: ${{ secrets.EMAIL }}
         uses: Nuitka/Nuitka-Action@main
         with:
           nuitka-version: main
-          script-name: gui.py # Change to your main entry file
-          mode: onefile
+          script-name: gui.py
+          # 2. 'app' mode is better for GUIs/Games to handle DPI and bundling
+          mode: app 
           lto: yes
-          disable-console: true
+          # 3. Set to false temporarily if you still need to see startup errors
+          disable-console: true 
           enable-plugins: tk-inter
           nofollow-import-to: "*.vendor.plugin"
-          # Ensure Nuitka uses the right compiler on Windows
+          
+          # 4. Windows Specific: Force include the CRT (C Runtime) DLLs
           mingw64: ${{ matrix.os == 'windows-latest' }}
-          # Dependencies and Assets
+          windows-dependency-tool: pefile
+          
+          # 5. macOS Specific: Create the .app bundle correctly
+          macos-create-app-bundle: ${{ matrix.os == 'macos-latest' }}
+          macos-app-icon: ${{ matrix.os == 'macos-latest' && 'icon.icns' || '' }}
+
           include-package: |
             customtkinter
             PIL
@@ -62,6 +72,7 @@ jobs:
             customtkinter
             mysql
             mysql.connector
+            tkinter
           include-data-files: |
             *.mp3=./
             *.wav=./
@@ -78,3 +89,4 @@ jobs:
             build/*.bin
             build/*.app
             build/*.exe
+            build/*.zip
