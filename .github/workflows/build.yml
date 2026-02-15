@@ -25,7 +25,7 @@ jobs:
 
       - name: Install Python Requirements
         run: |
-          pip install nuitka zstandard cython numpy
+          pip install setuptools nuitka zstandard cython numpy
           pip install customtkinter pillow pygame pywinstyles bcrypt mysql-connector-python
 
       - name: Compile Cython Extensions (C++)
