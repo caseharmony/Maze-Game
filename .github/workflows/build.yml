@@ -43,21 +43,17 @@ jobs:
         with:
           nuitka-version: main
           script-name: gui.py
-          # 2. 'app' mode is better for GUIs/Games to handle DPI and bundling
-          mode: app 
+          mode: app # This automatically handles 'onefile' and 'mac bundles'
           lto: yes
-          # 3. Set to false temporarily if you still need to see startup errors
           disable-console: true 
           enable-plugins: tk-inter
           nofollow-import-to: "*.vendor.plugin"
           
-          # 4. Windows Specific: Force include the CRT (C Runtime) DLLs
+          # Use the Action's validated input names
           mingw64: ${{ matrix.os == 'windows-latest' }}
-          windows-dependency-tool: pefile
-          
-          # 5. macOS Specific: Create the .app bundle correctly
-          macos-create-app-bundle: ${{ matrix.os == 'macos-latest' }}
           macos-app-icon: ${{ matrix.os == 'macos-latest' && 'icon.icns' || '' }}
+          # REMOVED: macos-create-app-bundle (handled by mode: app)
+          # REMOVED: windows-dependency-tool (Action doesn't support this input directly)
 
           include-package: |
             customtkinter
