@@ -1,6 +1,0 @@
-customtkinter
-Pillow
-pygame
-pywinstyles
-bcrypt
-mysql-connector-python
