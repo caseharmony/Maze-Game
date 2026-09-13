@@ -1,6 +1,7 @@
 # distutils: language=c++
 # cython: boundscheck=False
 # cython: wraparound=False
+# cython: cdivision=True
 from libcpp.vector cimport vector
 from libcpp.deque cimport deque
 from cpython.list cimport PyList_GET_ITEM, PyList_GET_SIZE

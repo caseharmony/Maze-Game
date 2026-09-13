@@ -1,6 +1,7 @@
 # distutils: language=c++
 # cython: boundscheck=False
 # cython: wraparound=False
+# cython: cdivision=True
 from PIL import Image
 from libcpp.vector cimport vector
 from libcpp.random cimport random_device
