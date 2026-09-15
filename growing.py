@@ -2,16 +2,19 @@ import random
 from PIL import Image
 
 
+
 def growing(e,p):
     global maze,n
     n = e
     maze = [[[-1] for _ in range(n)] for _ in range(n)]
     stak = []
     stak.append((0,0))
+    maze[0][0][0] = -2
     count = 1
     #0 - pure dfs, 100 - pure prims
-    while count!=n**2:
-        #print(stak)
+    n2 = n**2 + 1
+    i,j=0,0
+    while count!=n2:
         x = []
         if random.random()>p:
             #dfs
@@ -32,7 +35,7 @@ def growing(e,p):
                 break
             x = random.choice(x)
             maze[x[0]][x[1]][0] = -2
-            if maze[i][j][0]==-1:
+            if maze[i][j][0]==-2:
                 maze[i][j][0] = x[2]
             else:
                 maze[i][j].append(x[2]) 
@@ -57,7 +60,7 @@ def growing(e,p):
                 break
             x = random.choice(x)
             maze[x[0]][x[1]][0] = -2
-            if maze[i][j][0]==-1:
+            if maze[i][j][0]==-2:
                 maze[i][j][0] = x[2]
             else:
                 maze[i][j].append(x[2]) 

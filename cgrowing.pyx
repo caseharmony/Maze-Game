@@ -39,13 +39,15 @@ cdef void growingg(int e, unsigned int p):
     cdef vector[(int,int,int)] x 
     cdef vector[(int,int)] stak 
     stak.push_back((0,0))
+    maze[0][0][0] = -2
     cdef int count = 1
     cdef int i
     cdef int j
     cdef int r
     cdef (int,int,int) g
     #0 - pure dfs, 100 - pure prims
-    while count!=n**2:
+    cdef int n2 = n**2 + 1
+    while count!=n2:
         #print(stak)
         x.clear()
         if rng()>p:
@@ -67,7 +69,7 @@ cdef void growingg(int e, unsigned int p):
                 break
             g = x[rng()%x.size()]
             maze[g[0]][g[1]][0] = -2
-            if maze[i][j][0]==-1:
+            if maze[i][j][0]==-2:
                 maze[i][j][0] = g[2]
             else:
                 maze[i][j].push_back(g[2]) 
@@ -92,7 +94,7 @@ cdef void growingg(int e, unsigned int p):
                 break
             g = x[rng()%x.size()]
             maze[g[0]][g[1]][0] = -2
-            if maze[i][j][0]==-1:
+            if maze[i][j][0]==-2:
                 maze[i][j][0] = g[2]
             else:
                 maze[i][j].push_back(g[2]) 
