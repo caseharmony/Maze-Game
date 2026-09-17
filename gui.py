@@ -10,6 +10,8 @@ from PIL import Image
 from pygame import mixer as mk
 import pywinstyles
 import os
+import pickle
+from gzip import compress,decompress
 
 def traverse(something):
     global f
@@ -1078,14 +1080,14 @@ def trophyupdate(frame):
 #SAVE FILE FUNCTIONS
 
 def makefile(maze, moves, time):
-    file = str(maze) + "||||" + str(moves) + "||||" + time
+    file = pickle.dumps((maze,moves,time),protocol=pickle.HIGHEST_PROTOCOL)
+    file = compress(file,compresslevel=1)
     return file
 
 def breakfile(file):
     global f, n, x, y, lock, lmazepic, ffilemanager, moves
-    maze, moves, time = file.split("||||")
-    maze = eval(maze)
-    moves = eval(moves)
+    file = decompress(file)
+    maze,moves,time = pickle.loads(file)
     n = (len(maze) * 2)
     image = Image.new('RGB', (n + 1, n + 1), color=(0, 0, 0))
     i = 0
