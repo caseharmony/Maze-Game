@@ -11,7 +11,7 @@ from pygame import mixer as mk
 import pywinstyles
 import os
 import pickle
-from gzip import compress,decompress
+import zstandard as zstd
 
 def traverse(something):
     global f
@@ -1081,12 +1081,14 @@ def trophyupdate(frame):
 
 def makefile(maze, moves, time):
     file = pickle.dumps((maze,moves,time),protocol=pickle.HIGHEST_PROTOCOL)
-    file = compress(file,compresslevel=1)
+    cctx = zstd.ZstdCompressor(level=14, threads=-1)
+    bytess = cctx.compress(bytess)
     return file
 
 def breakfile(file):
     global f, n, x, y, lock, lmazepic, ffilemanager, moves
-    file = decompress(file)
+    dctx = zstd.ZstdDecompressor()
+    file = dctx.decompress(file)
     maze,moves,time = pickle.loads(file)
     n = (len(maze) * 2)
     image = Image.new('RGB', (n + 1, n + 1), color=(0, 0, 0))
