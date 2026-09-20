@@ -30,7 +30,7 @@ cdef void create_maze(int t):
     maze.assign(t, row) # Assign 't' copies of that row to the maze
 
 
-
+'''
 
 cdef void growingg(int e, unsigned int p):
     global maze,n
@@ -100,10 +100,106 @@ cdef void growingg(int e, unsigned int p):
                 maze[i][j].push_back(g[2]) 
             stak.push_back((g[0],g[1]))
             count = count + 1
-    
 
-    #print(stak.size(),'length when my optimization stopped')
-    #print(stak)
+'''
+
+cdef void growingg2(int e, unsigned int p):
+    global maze,n
+    n = e
+    create_maze(n)
+    cdef vector[(int,int,int)] x 
+    cdef vector[(int,int)] stak 
+    cdef vector[(int,int)] temp
+    stak.push_back((0,0))
+    maze[0][0][0] = -2
+    cdef int count = 1
+    cdef int count_dead = 0
+    cdef int i
+    cdef int j
+    cdef int r
+    cdef (int,int) r2
+    cdef (int,int,int) g
+    #0 - pure dfs, 100 - pure prims
+    cdef int n2 = n**2 + 1
+    while count!=n2:
+        x.clear()
+        if count_dead*2>stak.size() and stak.size()>100: #Garbage clean up code, should keep the list small, ideally
+            r = stak.size()
+            for i in range(r):
+                r2 = stak[i]
+                if not r2 == (-1,-1):
+                    temp.push_back(r2)
+            stak = temp
+            temp.clear()
+            count_dead = 0
+        if rng()>p:
+            #dfs
+            while x.size()==0 and stak.size()-count_dead>0:
+                i = -1
+                j = -1
+                while i==-1:
+                    i,j = stak.back()
+                    if i==-1:
+                        count_dead = count_dead - 1
+                        stak.pop_back()
+                if i>0 and maze[i-1][j][0]==-1: #In range and unvisited
+                    x.push_back((i-1,j,0))
+                if i+1<n and maze[i+1][j][0]==-1:
+                    x.push_back((i+1,j,1))
+                if j>0 and maze[i][j-1][0]==-1:
+                    x.push_back((i,j-1,2))
+                if j+1<n and maze[i][j+1][0]==-1:
+                    x.push_back((i,j+1,3))
+                
+                if x.size()==0:
+                    stak.pop_back()
+            if stak.size()-count_dead==0:
+                break
+            g = x[rng()%x.size()]
+            maze[g[0]][g[1]][0] = -2
+            if maze[i][j][0]==-2:
+                maze[i][j][0] = g[2]
+            else:
+                maze[i][j].push_back(g[2]) 
+            stak.push_back((g[0],g[1]))
+            count = count + 1
+        else:
+            while x.size()==0 and stak.size()-count_dead>0:
+                i = -1
+                j = -1
+                while i==-1: #infinite loop possible here?
+                    r = rng() % stak.size()
+                    i,j = stak[r]
+                    #if stak.back()[0] == -1: #This should prevent infinite loops
+                    #    stak.pop_back()
+                    #    count_dead = count_dead - 1
+                if i>0 and maze[i-1][j][0]==-1: #In range and unvisited
+                    x.push_back((i-1,j,0))
+                if i+1<n and maze[i+1][j][0]==-1:
+                    x.push_back((i+1,j,1))
+                if j>0 and maze[i][j-1][0]==-1:
+                    x.push_back((i,j-1,2))
+                if j+1<n and maze[i][j+1][0]==-1:
+                    x.push_back((i,j+1,3))
+                
+                if x.size()==0:
+                    count_dead = count_dead + 1
+                    stak[r][0] = -1
+                    stak[r][1] = -1
+            if stak.size()-count_dead==0:
+                break
+            g = x[rng()%x.size()]
+            maze[g[0]][g[1]][0] = -2
+            if maze[i][j][0]==-2:
+                maze[i][j][0] = g[2]
+            else:
+                maze[i][j].push_back(g[2]) 
+            stak.push_back((g[0],g[1]))
+            count = count + 1
+
+
+
+
 
 cdef img():
     global n
@@ -153,5 +249,8 @@ cdef img():
 
 
 cpdef cgrowing(r,pe):
-    growingg(r,(pe*4294967295)//1)
+    #if pe>1:
+    #    growingg(r,(pe*4294967295)//1)
+    #else:
+    growingg2(r,(pe*4294967295)//1)
     return [img(),maze]
