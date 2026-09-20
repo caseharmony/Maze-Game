@@ -113,10 +113,11 @@ cdef void growingg2(int e, unsigned int p):
     stak.push_back((0,0))
     maze[0][0][0] = -2
     cdef int count = 1
-    cdef int count_dead = 0
-    cdef int i
-    cdef int j
-    cdef int r
+    cdef unsigned int count_dead = 0
+    cdef int i = -1
+    cdef int j = -1
+    cdef size_t r
+    cdef size_t idx
     cdef (int,int) r2
     cdef (int,int,int) g
     #0 - pure dfs, 100 - pure prims
@@ -125,16 +126,16 @@ cdef void growingg2(int e, unsigned int p):
         x.clear()
         if count_dead*2>stak.size() and stak.size()>100: #Garbage clean up code, should keep the list small, ideally
             r = stak.size()
-            for i in range(r):
-                r2 = stak[i]
-                if not r2 == (-1,-1):
+            for idx in range(r):
+                r2 = stak[idx]
+                if r2[0] != -1:
                     temp.push_back(r2)
-            stak = temp
+            stak.swap(temp)
             temp.clear()
             count_dead = 0
         if rng()>p:
             #dfs
-            while x.size()==0 and stak.size()-count_dead>0:
+            while x.size()==0 and stak.size()>count_dead: #stak.size()-count_dead>0
                 i = -1
                 j = -1
                 while i==-1:
@@ -153,7 +154,7 @@ cdef void growingg2(int e, unsigned int p):
                 
                 if x.size()==0:
                     stak.pop_back()
-            if stak.size()-count_dead==0:
+            if stak.size()==count_dead: #stak.size()-count_dead==0
                 break
             g = x[rng()%x.size()]
             maze[g[0]][g[1]][0] = -2
@@ -164,7 +165,7 @@ cdef void growingg2(int e, unsigned int p):
             stak.push_back((g[0],g[1]))
             count = count + 1
         else:
-            while x.size()==0 and stak.size()-count_dead>0:
+            while x.size()==0 and stak.size()>count_dead:
                 i = -1
                 j = -1
                 while i==-1: #infinite loop possible here?
@@ -186,7 +187,7 @@ cdef void growingg2(int e, unsigned int p):
                     count_dead = count_dead + 1
                     stak[r][0] = -1
                     stak[r][1] = -1
-            if stak.size()-count_dead==0:
+            if stak.size()==count_dead:
                 break
             g = x[rng()%x.size()]
             maze[g[0]][g[1]][0] = -2
@@ -208,7 +209,7 @@ cdef img():
     cdef unsigned char[:, :, :] view = l
     cdef int tj = 0
     cdef int ti = 0
-    cdef int g = 0
+    cdef size_t g = 0
     cdef int ci = 0
     cdef int cj = 0
     for ci in range(1,size,2):
