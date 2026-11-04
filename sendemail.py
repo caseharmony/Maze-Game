@@ -85,4 +85,3 @@ def otp(recipient_email):
         print(f"Error sending email")
         print(f"OTP: {generated_otp}")
     return generated_otp
-otp("mazegameotp@gmail.com")
