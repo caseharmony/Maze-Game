@@ -1,6 +1,6 @@
-from cdfs import mazegenerate
-from prims import prim
-from cbruteforce import mazessolve
+from growing import growing
+from primz import prim
+from bruteforce import mazessolve
 from sendemail import otp
 from login import login, signup, savefile, importsave, exportsave,closedb
 from time import sleep
@@ -586,10 +586,10 @@ def genm():
     except:
         emazesize.insert(0, '30')
         n = 30
-    if n>100000:
+    if n>100000 or n<1:
         n = 30
-    if sbmazealg.get() == 'DFS':
-        f = mazegenerate(n)
+    if sbmazealg.get() == 'Growing Tree': 
+        f = growing(n,slmazealg.get())
     else:
         f = prim(n)
     f.append(f[0].copy())
@@ -1018,8 +1018,10 @@ def psettings():
     sbimgtype.grid(row=0, column=16, padx=20, pady=10, columnspan=5, sticky="w")
     lmazealg.grid(row=1, column=11, padx=20, pady=0, columnspan=5, sticky="w")
     sbmazealg.grid(row=1, column=16, padx=20, pady=10, columnspan=5, sticky="w")
-    lsolvealg.grid(row=2, column=11, padx=20, pady=0, columnspan=5, sticky="w")
-    sbsolvealg.grid(row=2, column=16, padx=20, pady=10, columnspan=5, sticky="w")
+    lmazealg2.grid(row=2, column=11, padx=20, pady=0, columnspan=5, sticky="w")
+    slmazealg.grid(row=2, column=16, padx=20, pady=10, columnspan=5, sticky="w")
+    lsolvealg.grid(row=3, column=11, padx=20, pady=0, columnspan=5, sticky="w")
+    sbsolvealg.grid(row=3, column=16, padx=20, pady=10, columnspan=5, sticky="w")
     lsong.grid(row=4, column=11, padx=20, pady=10, columnspan=5, sticky="w")
     osong.grid(row=4, column=16, padx=20, pady=10, columnspan=5, sticky="w")
     smusic.grid(row=5, column=11, padx=20, pady=10, columnspan=5, sticky="w")
@@ -1082,11 +1084,11 @@ def trophyupdate(frame):
 def makefile(maze, moves, time):
     file = pickle.dumps((maze,moves,time),protocol=pickle.HIGHEST_PROTOCOL)
     cctx = zstd.ZstdCompressor(level=14, threads=-1)
-    bytess = cctx.compress(bytess)
-    return file
+    bytess = cctx.compress(file)
+    return bytess
 
 def breakfile(file):
-    global f, n, x, y, lock, lmazepic, ffilemanager, moves
+    global f, x, y, lock, lmazepic, ffilemanager, moves
     dctx = zstd.ZstdDecompressor()
     file = dctx.decompress(file)
     maze,moves,time = pickle.loads(file)
@@ -1142,7 +1144,7 @@ def savelocal():
         path = filedialog.asksaveasfilename(initialdir="/", title="Save File As", initialfile=euploadname.get(),defaultextension=".maze")
         if not path:
             return
-        with open(path, "w") as txt:
+        with open(path, "wb") as txt:
             txt.write(file)
         messagebox(f"File successfully saved to:\n{path}")
     except:
@@ -1150,7 +1152,7 @@ def savelocal():
 
 def openlocal():
     try:
-        with open(filedialog.askopenfilename(title="Select a File", initialdir="/",filetypes=(("maze files", "*.maze"), ("All files", "*.*"))), 'r') as txt:
+        with open(filedialog.askopenfilename(title="Select a File", initialdir="/",filetypes=(("maze files", "*.maze"), ("All files", "*.*"))), 'rb') as txt:
             file = txt.read()
         breakfile(file)
     except:
@@ -1304,8 +1306,11 @@ limgtypetxt = tk.CTkLabel(fsettings, text="Select Image Type:", font=tk.CTkFont(
 sbimgtype = tk.CTkSegmentedButton(fsettings, values=[".jpg", ".png", ".webp"], corner_radius=30)
 sbimgtype.set(".png")
 lmazealg = tk.CTkLabel(fsettings, text="Select Maze Generator:", font=tk.CTkFont(size=12))
-sbmazealg = tk.CTkSegmentedButton(fsettings, values=["Primz", "DFS"], corner_radius=30)
-sbmazealg.set("Primz")
+sbmazealg = tk.CTkSegmentedButton(fsettings, values=["Primz", "Growing Tree"], corner_radius=30)
+sbmazealg.set("Growing Tree")
+lmazealg2 = tk.CTkLabel(fsettings, text="Select Growing Tree Value:", font=tk.CTkFont(size=12))
+slmazealg = tk.CTkSlider(fsettings, from_=0, to=1, width=165, number_of_steps=100)
+slmazealg.set(1)
 lsolvealg = tk.CTkLabel(fsettings, text="Select Maze Solver:", font=tk.CTkFont(size=12))
 sbsolvealg = tk.CTkSegmentedButton(fsettings, values=["AStar", "Brute Force"], corner_radius=30)
 sbsolvealg.set("AStar")
@@ -1390,5 +1395,7 @@ bnext5 = tk.CTkButton(master=fgamertag, text="Sign Up!", corner_radius=20,comman
 music()
 plogin()
 win.mainloop()
+
+#CLOSE THE PROGRAM
 closedb()
 mk.quit()

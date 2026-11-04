@@ -1,13 +1,15 @@
 import bcrypt
 import mysql.connector as mc
 import os
-password=os.getenv('DB_KEY')
+from dotenv import load_dotenv
+load_dotenv()
+
 config = {
-"user": "amazeing_involvedbe",
-"password": password,
-"host": "7ax81r.h.filess.io",
-"port": 3307,
-"database": "amazeing_involvedbe"
+"user": os.getenv('DB_USER'),
+"password": os.getenv('DB_PASSWORD'),
+"host": os.getenv('DB_HOST'),
+"port": os.getenv('DB_PORT'),
+"database": os.getenv('DB_NAME')
 }
 db=mc.connect(**config)
 cur=db.cursor()
@@ -17,7 +19,7 @@ def login(username,password):
     cur.execute("SELECT * FROM login")
     logindb=list(cur.fetchall())
     try:
-        check=bcrypt.checkpw(password.encode("utf-8"),logindb[list(map(lambda item: item[0],logindb)).index(username)][1])
+        check = bcrypt.checkpw(password.encode("utf-8"), logindb[list(map(lambda item: item[0], logindb)).index(username)][1].encode("utf-8"))
         return check
     except:
         return False
