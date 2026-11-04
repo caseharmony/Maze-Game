@@ -6,12 +6,13 @@ from email.mime.text import MIMEText
 from dotenv import load_dotenv
 load_dotenv()
 
-def otp(recipient_email,name):
+def otp(recipient_email):
     # Generate a secure 6-digit OTP
     generated_otp = str(secrets.randbelow(900000) + 100000)
     
     # Load email and app password from environment variables
     sender_email = os.getenv("SENDER_EMAIL")
+    acc_email = os.getenv("ACC_EMAIL")
     app_password = os.getenv("EMAIL_APP_KEY")
     
     if not sender_email or not app_password:
@@ -77,10 +78,11 @@ def otp(recipient_email,name):
     try:
         smtp = smtplib.SMTP("smtp.gmail.com", 587)
         smtp.starttls()
-        smtp.login(sender_email, app_password)
-        smtp.sendmail(sender_email, recipient_email, msg.as_string())
+        smtp.login(acc_email, app_password)
+        smtp.sendmail(acc_email, recipient_email, msg.as_string())
         smtp.quit()
     except:
         print(f"Error sending email")
         print(f"OTP: {generated_otp}")
     return generated_otp
+otp("mazegameotp@gmail.com")
