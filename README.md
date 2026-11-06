@@ -3,7 +3,7 @@
 
 ![](https://amaze.cc.cd/assets/logo.webp)
 
-![get the latest release at amaze.cc.cd](https://amaze.cc.cd/)
+[get the latest release at amaze.cc.cd](https://amaze.cc.cd/)
 
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue?style=for-the-badge&logo=python&logoColor=white)
 ![Pygame](https://img.shields.io/badge/Pygame-2.x-green?style=for-the-badge&logo=sdl&logoColor=white)
@@ -20,7 +20,7 @@
 ## Features
 
 * **Interactive Desktop GUI:** Modern, sleek control panels and menus powered by **CustomTkinter**, paired with smooth game loops rendered via **Pygame**.
-* **Cloud User Authentication:** Secure user sign-up and login utilizing **bcrypt** password hashing backed by a remote **Aiven Cloud MySQL** database.
+* **Cloud User Authentication:** Secure user sign-up and login utilizing **bcrypt** password hashing backed by a remote **MySQL** database.
 * **Progress & Save Management:** Persistent player statistics, leaderboards, and custom binary save-file serialization.
 * **Dynamic Maze Generation:** Engaging grid layouts designed to test your navigation and speed.
 
@@ -59,7 +59,7 @@ Make sure you have Python installed on your system along with pip.
 
 4. **Run the application:**
    ```bash
-   python .py
+   python gui.py
    ```
 
 ---
