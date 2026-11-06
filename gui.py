@@ -1,17 +1,60 @@
-from growing import growing
-from primz import prim
-from bruteforce import mazessolve
+import ssl
+import _ssl
+import cryptography
+from cgrowing import cgrowing
+from prims import prim
+from cbruteforce import mazessolve
 from sendemail import otp
 from login import login, signup, savefile, importsave, exportsave,closedb
 from time import sleep
 import customtkinter as tk
-from tkinter import filedialog
+from tkinter import filedialog,PhotoImage
 from PIL import Image
 from pygame import mixer as mk
-import pywinstyles
+import sys
 import os
 import pickle
 import zstandard as zstd
+
+try:
+    import pywinstyles
+except ImportError:
+    pass
+
+def set_opacity(widget, value=1.0, color=None):
+    #Sets window / widget opacity and transparent color across platforms using native Tkinter functions.
+    target = widget if hasattr(widget, "attributes") else (widget.winfo_toplevel() if hasattr(widget, "winfo_toplevel") else widget)
+    if sys.platform.startswith("win"):
+        pywinstyles.set_opacity(widget,color=color)
+    elif sys.platform == "darwin":
+        try:
+            if color is not None:
+                target.attributes("-transparent", True)
+                try:
+                    target.config(bg="systemTransparent")
+                except Exception:
+                    pass
+                if hasattr(widget, "configure"):
+                    try:
+                        widget.configure(bg_color="transparent")
+                    except Exception:
+                        pass
+            if value is not None and value < 1.0:
+                target.attributes("-alpha", float(value))
+        except Exception:
+            pass
+    else:
+        # Linux / Unix (X11 / Wayland)
+        try:
+            if color is not None and hasattr(widget, "configure"):
+                try:
+                    widget.configure(bg_color="transparent")
+                except Exception:
+                    pass
+            if value is not None and value < 1.0:
+                target.attributes("-alpha", float(value))
+        except Exception:
+            pass
 
 def traverse(something):
     global f
@@ -589,7 +632,7 @@ def genm():
     if n>100000 or n<1:
         n = 30
     if sbmazealg.get() == 'Growing Tree': 
-        f = growing(n,slmazealg.get())
+        f = cgrowing(n,slmazealg.get())
     else:
         f = prim(n)
     f.append(f[0].copy())
@@ -624,7 +667,7 @@ def left(event):
     else:
         f[0].putpixel((x + 1, y), (255, 255, 255))
     moves.append('l')
-    c1.play(mk.Sound(os.path.dirname(__file__) + "\\move.wav"))
+    c1.play(mk.Sound(os.path.join(os.path.dirname(__file__), "move.wav")))
     placeimg()
 
 def right(event):
@@ -645,7 +688,7 @@ def right(event):
     else:
         f[0].putpixel((x - 1, y), (255, 255, 255))
     moves.append('r')
-    c1.play(mk.Sound(os.path.dirname(__file__) + "\\move.wav"))
+    c1.play(mk.Sound(os.path.join(os.path.dirname(__file__), "move.wav")))
     placeimg()
 
 def up(event):
@@ -666,7 +709,7 @@ def up(event):
     else:
         f[0].putpixel((x, y + 1), (255, 255, 255))
     moves.append('u')
-    c1.play(mk.Sound(os.path.dirname(__file__) + "\\move.wav"))
+    c1.play(mk.Sound(os.path.join(os.path.dirname(__file__), "move.wav")))
     placeimg()
 
 def down(event):
@@ -687,7 +730,7 @@ def down(event):
     else:
         f[0].putpixel((x, y - 1), (255, 255, 255))
     moves.append('d')
-    c1.play(mk.Sound(os.path.dirname(__file__) + "\\move.wav"))
+    c1.play(mk.Sound(os.path.join(os.path.dirname(__file__), "move.wav")))
     placeimg()
 
 def replay():
@@ -748,7 +791,7 @@ def clear():
 
 def music():
     if musicmode.get() == 'on':
-        c0.play(mk.Sound(os.path.dirname(__file__) + "\\" + vsong.get() + ".mp3"), loops=-1)
+        c0.play(mk.Sound(os.path.join(os.path.dirname(__file__), vsong.get() + ".mp3")), loops=-1)
     else:
         c0.stop()
 
@@ -1071,7 +1114,7 @@ def pwinnerboxload():
 def pwinnerbox():
     fwinnerbox.grid(row=0, column=0, padx=20, pady=20)
     fwinnerbox.lift()
-    c1.play(mk.Sound(os.path.dirname(__file__) + "\\victory.wav"))
+    c1.play(mk.Sound(os.path.join(os.path.dirname(__file__), "victory.wav")))
 
 def trophyupdate(frame):
     ltrophy.configure(image=trophyframes[frame])
@@ -1201,9 +1244,9 @@ def messagebox(text):
     win.grid_rowconfigure(0, weight=1)
     win.grid_columnconfigure(0, weight=1)
     fmsgbox = tk.CTkFrame(master=win, corner_radius=20, bg_color="#000001", border_width=1.75)
-    c1.play(mk.Sound(os.path.dirname(__file__) + "\\message.wav"))
+    c1.play(mk.Sound(os.path.join(os.path.dirname(__file__), "message.wav")))
     fmsgbox.grid(row=0, column=0, padx=20, pady=20, sticky="")
-    pywinstyles.set_opacity(fmsgbox, color="#000001")
+    set_opacity(fmsgbox, color="#000001")
     lmsg = tk.CTkLabel(fmsgbox, text=text, font=tk.CTkFont(size=15, weight="bold"))
     lmsg.grid(row=0, column=0, padx=40, pady=(40, 20))
     def ok():
@@ -1224,11 +1267,17 @@ c0 = mk.Channel(0)
 c1 = mk.Channel(1)
 win = tk.CTk()
 win.title("Maze Game")
-win.iconbitmap(os.path.dirname(__file__) + "\\icon.ico")
+#win.iconbitmap(os.path.join(os.path.dirname(__file__), "icon.png"))
+if sys.platform.startswith("win"):
+    win.iconbitmap(os.path.join(os.path.dirname(__file__), "icon.ico"))
+else:
+    icon_path = os.path.join(os.path.dirname(__file__), "icon.png")
+    img = PhotoImage(file=icon_path)
+    win.iconphoto(False, img)
 win.geometry(str(win.winfo_screenwidth()) + "x" + str(win.winfo_screenheight()))
 tk.set_window_scaling(0.6)
 tk.set_appearance_mode("dark")
-tk.set_default_color_theme(os.path.dirname(__file__) + "\\orange.json")
+tk.set_default_color_theme(os.path.join(os.path.dirname(__file__), "orange.json"))
 win.grid_columnconfigure(0, weight=1)
 win.grid_rowconfigure(0, weight=1)
 
@@ -1240,7 +1289,7 @@ eusername = tk.CTkEntry(flogin, placeholder_text="Enter Username", width=325, co
 epassword = tk.CTkEntry(flogin, placeholder_text="Enter password", width=325, corner_radius=30, show='*')
 bsignup = tk.CTkButton(flogin, corner_radius=30, fg_color='transparent', hover=False, text="don't have an account?",text_color="#67C1FD", command=pname)
 blogin = tk.CTkButton(flogin, corner_radius=30, text="login", command=dlogin)
-ilogo = tk.CTkImage(dark_image=Image.open(os.path.dirname(__file__) + "\\icon.png"), size=(300, 300))
+ilogo = tk.CTkImage(dark_image=Image.open(os.path.join(os.path.dirname(__file__), "icon.png")), size=(300, 300))
 
 #MAZE WINDOW SETUP
 
@@ -1277,9 +1326,9 @@ ltimer = tk.CTkLabel(ftimer, text="00:00:00", font=tk.CTkFont(size=90, weight="b
 
 #SETTINGS PAGE SETUP
 
-isettings = tk.CTkImage(dark_image=Image.open(os.path.dirname(__file__) + "\\settings.png"), size=(50, 50))
+isettings = tk.CTkImage(dark_image=Image.open(os.path.join(os.path.dirname(__file__), "settings.png")), size=(50, 50))
 fsettings = tk.CTkFrame(master=win, corner_radius=20, width=300, bg_color="#000001", fg_color="#363636")
-pywinstyles.set_opacity(fsettings, color="#000001")
+set_opacity(fsettings, color="#000001")
 lsettings = tk.CTkLabel(fmazecontrols, image=isettings, text="")
 def focussettings(event):
     fsettings.lift()
@@ -1310,7 +1359,7 @@ sbmazealg = tk.CTkSegmentedButton(fsettings, values=["Primz", "Growing Tree"], c
 sbmazealg.set("Growing Tree")
 lmazealg2 = tk.CTkLabel(fsettings, text="Select Growing Tree Value:", font=tk.CTkFont(size=12))
 slmazealg = tk.CTkSlider(fsettings, from_=0, to=1, width=165, number_of_steps=100)
-slmazealg.set(1)
+slmazealg.set(0.5)
 lsolvealg = tk.CTkLabel(fsettings, text="Select Maze Solver:", font=tk.CTkFont(size=12))
 sbsolvealg = tk.CTkSegmentedButton(fsettings, values=["AStar", "Brute Force"], corner_radius=30)
 sbsolvealg.set("AStar")
@@ -1331,9 +1380,9 @@ blogout = tk.CTkButton(fsettings, corner_radius=30, text="Logout", command=logou
 #WINNER BOX SETUP
 
 fwinnerbox = tk.CTkFrame(master=win, corner_radius=20, bg_color="#000001", fg_color="#414141")
-pywinstyles.set_opacity(fwinnerbox, color="#000001")
+set_opacity(fwinnerbox, color="#000001")
 lwin = tk.CTkLabel(fwinnerbox, text="¡ ¡ Congratulations on Completing the Maze ! !",font=tk.CTkFont(size=15, weight="bold"))
-itrophy = Image.open(os.path.dirname(__file__) + "\\trophy.gif")
+itrophy = Image.open(os.path.join(os.path.dirname(__file__), "trophy.gif"))
 trophyframes = []
 for i in range(itrophy.n_frames):
     itrophy.seek(i)
