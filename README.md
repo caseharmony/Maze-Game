@@ -19,7 +19,7 @@
 
 ## Features
 
-* **Interactive Desktop GUI:** Modern, sleek control panels and menus powered by **CustomTkinter**, paired with smooth game loops rendered via **Pygame**.
+* **Interactive Desktop GUI:** Modern, sleek control panels and menus powered by **CustomTkinter**, paired with an audio engine powered by **Pygame**.
 * **Cloud User Authentication:** Secure user sign-up and login utilizing **bcrypt** password hashing backed by a remote **MySQL** database.
 * **Progress & Save Management:** Persistent player statistics, leaderboards, and custom binary save-file serialization.
 * **Dynamic Maze Generation:** Engaging grid layouts designed to test your navigation and speed.
